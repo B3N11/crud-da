@@ -1,0 +1,12 @@
+USERDATA
+- ID
+- username
+- password
+- account type
+- full name
+- status/active/online
+- request (as ID in DB)
+--------------------------------------------------
+REQUEST
+- accountRemove
+- carBrandAttach

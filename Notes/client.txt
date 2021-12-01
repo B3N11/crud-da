@@ -1,0 +1,3 @@
+CONNECTION
+- Uppon disconnect, log out of the application immediatelly
+--------------------------------------------------

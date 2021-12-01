@@ -1,0 +1,25 @@
+CONNECTION
+- Connecting via NetClient class
+- Handle connections in NetClientController
+- Automatically remove disconnected NetClients
+- Once connection is established, add client to NCC and start countdown waiting for authentication message
+- A user is logged in as long as they are connected via TCP or they log out
+--------------------------------------------------
+AUTHENTICATION
+- Authentication required for connecting: using server's own key implemented in both server and client
+- Auth required right after establishing TCP connection
+- Send response about the result of authentication
+- If auth failed => disconnect and remove from NCC
+- Authentication key HASHED in communication!
+--------------------------------------------------
+LOGIN
+- Logged in users are stored in UserController
+- Login request arrives hashed-d
+- Check database for matching username: if found => create
+--------------------------------------------------
+REGISTER
+- Receive hashed registration data
+- Evaluate data comparing to requirements
+- Send response
+- Uppon successful response consider user logged in and add to UserController
+--------------------------------------------------
