@@ -1,0 +1,17 @@
+D:\My Projects\GIT\crud-da\Programs\Server\CarCRUDServer\bin\Debug\net5.0\CarCRUDServer.exe
+D:\My Projects\GIT\crud-da\Programs\Server\CarCRUDServer\bin\Debug\net5.0\CarCRUDServer.deps.json
+D:\My Projects\GIT\crud-da\Programs\Server\CarCRUDServer\bin\Debug\net5.0\CarCRUDServer.runtimeconfig.json
+D:\My Projects\GIT\crud-da\Programs\Server\CarCRUDServer\bin\Debug\net5.0\CarCRUDServer.runtimeconfig.dev.json
+D:\My Projects\GIT\crud-da\Programs\Server\CarCRUDServer\bin\Debug\net5.0\CarCRUDServer.dll
+D:\My Projects\GIT\crud-da\Programs\Server\CarCRUDServer\bin\Debug\net5.0\ref\CarCRUDServer.dll
+D:\My Projects\GIT\crud-da\Programs\Server\CarCRUDServer\bin\Debug\net5.0\CarCRUDServer.pdb
+D:\My Projects\GIT\crud-da\Programs\Server\CarCRUDServer\bin\Debug\net5.0\Newtonsoft.Json.dll
+D:\My Projects\GIT\crud-da\Programs\Server\CarCRUDServer\obj\Debug\net5.0\CarCRUDServer.csproj.AssemblyReference.cache
+D:\My Projects\GIT\crud-da\Programs\Server\CarCRUDServer\obj\Debug\net5.0\CarCRUDServer.GeneratedMSBuildEditorConfig.editorconfig
+D:\My Projects\GIT\crud-da\Programs\Server\CarCRUDServer\obj\Debug\net5.0\CarCRUDServer.AssemblyInfoInputs.cache
+D:\My Projects\GIT\crud-da\Programs\Server\CarCRUDServer\obj\Debug\net5.0\CarCRUDServer.AssemblyInfo.cs
+D:\My Projects\GIT\crud-da\Programs\Server\CarCRUDServer\obj\Debug\net5.0\CarCRUDServer.csproj.CoreCompileInputs.cache
+D:\My Projects\GIT\crud-da\Programs\Server\CarCRUDServer\obj\Debug\net5.0\CarCRUDServer.dll
+D:\My Projects\GIT\crud-da\Programs\Server\CarCRUDServer\obj\Debug\net5.0\ref\CarCRUDServer.dll
+D:\My Projects\GIT\crud-da\Programs\Server\CarCRUDServer\obj\Debug\net5.0\CarCRUDServer.pdb
+D:\My Projects\GIT\crud-da\Programs\Server\CarCRUDServer\obj\Debug\net5.0\CarCRUDServer.genruntimeconfig.cache

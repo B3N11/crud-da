@@ -10,7 +10,14 @@ namespace CarCRUD
         {
             if (_object == null) return;
 
-            Console.WriteLine($"{DateTime.Now} STATUS UPDATE: Status of {_object.GetID()} is now {_object.GetState()}");
+            Console.WriteLine($"{DateTime.Now} STATUS UPDATE: Status of {_object.GetID()} is now {_object.GetState()}.");
+        }
+
+        public static void LogConnectionState(EndpointLoggable _object)
+        {
+            if (_object == null) return;
+
+            Console.WriteLine($"{DateTime.Now} CONNECTION UPDATE: {_object.GetID()} with endpoint {_object.GetEndPoint()} {_object.GetState()}.");
         }
     }
 
@@ -18,5 +25,10 @@ namespace CarCRUD
     {        
         public string GetID();
         public string GetState();
+    }
+
+    interface EndpointLoggable : Loggable
+    {
+        public string GetEndPoint();
     }
 }

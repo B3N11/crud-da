@@ -18,9 +18,9 @@ namespace CarCRUD
         public class NetClientController
         {
             //General
-            public int id = 0;
+            public string id = string.Empty;
             public int port { get; private set; }
-            public int maxBroadcastSize { get; private set; }
+            public int maxBroadcastSize { get; set; }
             public int timeOut = 5;
 
             //Client Handling
@@ -40,10 +40,14 @@ namespace CarCRUD
             public List<NetClient> clients = new List<NetClient>();
             public List<FileHandler> fileHandlers = new List<FileHandler>();
 
-            //Delegates and events
+            //Delegates
             public delegate void ClientConnectedHandler(NetClient _client);
+            public delegate void ClientAcceptStop(object _object);
 
-            public NetClientController(int _id, int _maxBroadcastSize, int _maxClientCount, int _port)
+            //Events
+            public event ClientAcceptStop OnClientAcceptStopped;
+
+            public NetClientController(string _id, int _port, int _maxBroadcastSize = 65535, int _maxClientCount = -1)
             {
                 id = _id;
                 maxBroadcastSize = _maxBroadcastSize;
@@ -60,10 +64,12 @@ namespace CarCRUD
                 listener = new TcpListener(IPAddress.Any, port);
                 acceptClients = true;
 
-                bool result = await Task.Run(() => AcceptClients(clientConnectedCallback));
+                await Task.Run(() => AcceptClients(clientConnectedCallback));
 
                 acceptClients = false;
-                return;
+
+                if (OnClientAcceptStopped != null)
+                    OnClientAcceptStopped.Invoke(this);
             }
 
             private async Task<bool> AcceptClients(ClientConnectedHandler clientConnectedCallback = null)
@@ -76,13 +82,14 @@ namespace CarCRUD
                         TcpClient tcpClient = await listener.AcceptTcpClientAsync();
                         string ip = ((IPEndPoint)(tcpClient.Client.RemoteEndPoint)).Address.ToString();
 
-                        NetClient nClient = new NetClient(-1, port, this, null, timeOut);
-                        AttachClient(nClient);
+                        NetClient nClient = new NetClient(null, port, this, null, timeOut);
+                        if (!AttachClient(nClient)) continue;
                         nClient.Establish(tcpClient);
 
                         if (clientConnectedCallback != null)
                             clientConnectedCallback(nClient);
 
+                        //maxClientCount is -1 by default => never stops listening
                         if (clients.Count == maxClientCount)
                             return true;
                     }
@@ -103,7 +110,7 @@ namespace CarCRUD
                 if (clients.Count == maxClientCount)
                     return false;
 
-                NetClient netClient = new NetClient(++ncID, _port, this, _name, _clientTimeOut);
+                NetClient netClient = new NetClient(null, _port, this, _name, _clientTimeOut);
 
                 return netClient.created ? AttachClient(netClient) : false;
             }
@@ -120,7 +127,7 @@ namespace CarCRUD
 
                 _client.ncc?.RemoveClient(_client);
                 _client.ncc = this;
-                _client.id = ++ncID;
+                _client.id = Guid.NewGuid().ToString();
                 clients.Add(_client);
 
                 if (autoRemove)
@@ -233,11 +240,12 @@ namespace CarCRUD
         {
             #region Properties
             //General
-            public int id = -1;
+            public string id = string.Empty;
             public string ipAddress { get; private set; }
             public int port = 1989;
             public int timeOut = 5;
             public string name = string.Empty;
+            public IPEndPoint endPoint;
 
             public bool created { get; private set; }
             public bool connected = false;
@@ -291,7 +299,7 @@ namespace CarCRUD
             private CancellationTokenSource fileCancelTokenSource;
 
             //Constructor
-            public NetClient(int _id, int _port, NetClientController _ncc = null, string _name = null, int _timeOut = 5)
+            public NetClient(string _id, int _port, NetClientController _ncc = null, string _name = null, int _timeOut = 5)
             {
                 id = _id;
                 port = _port;
@@ -337,7 +345,8 @@ namespace CarCRUD
                 tcpClient.ReceiveBufferSize = bufferSize;
                 tcpClient.SendBufferSize = bufferSize;
 
-                ipAddress = ((IPEndPoint)tcpClient.Client.RemoteEndPoint).Address.ToString();
+                endPoint = (IPEndPoint)tcpClient.Client.RemoteEndPoint;
+                ipAddress = endPoint.Address.ToString();
                 netStream = tcpClient.GetStream();
 
                 connected = tcpClient.Connected;
@@ -361,6 +370,9 @@ namespace CarCRUD
                 string ip = ValidateIPAddresses(_ip);
                 if (ip == null)
                     return;
+
+                tcpClient = new TcpClient();
+                SetAddressReusability(_bindSocket);
 
                 bool result = await Connect(ip, _bindSocket);
 
@@ -509,15 +521,11 @@ namespace CarCRUD
             {
                 try
                 {
-                    int header = data.Length;       //Create the header for the message
-                    byte[] headerData = BitConverter.GetBytes(header);
-                    byte[] finalData = new byte[(4 + header)];      //NOT OPTIMAL (2x memory usage)
+                    int header = data.Length;       //Create the header for the message                    
+                    List<byte> finalData = BitConverter.GetBytes(header).ToList();
+                    finalData.Concat(data.ToList());
 
-                    Array.Copy(headerData, 0, finalData, 0, 4);     //Put header into packet
-                    Array.Copy(data, 0, finalData, 4, header);      //Put data into packet
-
-                    netStream.Write(finalData, 0, finalData.Length);        //Write into stream
-
+                    netStream.Write(finalData.ToArray(), 0, finalData.Count);        //Write into stream
                     return true;
                 }
                 catch { return false; }
@@ -528,7 +536,7 @@ namespace CarCRUD
             /// </summary>
             public async void SendRawAsync(byte[] data)
             {
-                if (data == null || data.Length == 0 || tcpClient == null || connected == null)
+                if (data == null || data.Length == 0 || tcpClient == null || !connected)
                     return;
 
                 bool result = await SendRaw(data);
@@ -557,6 +565,7 @@ namespace CarCRUD
                 if (!connected || fileTransportInProgress)
                     return;
 
+                receiveEnabled = true;
                 bool result = await Receive();
 
                 if (result)
@@ -942,11 +951,6 @@ namespace CarCRUD
         {
             Success,
             Fail
-        }
-
-        public class NetMessage
-        {
-            public bool broadcast { get; set; }
         }
     }
 }
