@@ -27,6 +27,7 @@ namespace CarCRUD.ServerHandle
 
         //Custom
         public static bool loggingEnabled = true;
+        public static long maxUploadFileSize = 50000;
         #endregion
 
         #region General

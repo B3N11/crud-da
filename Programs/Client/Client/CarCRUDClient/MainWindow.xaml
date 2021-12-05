@@ -8,8 +8,7 @@
         Height="650" Width="1200"
         Background="#100a2b"
         WindowStyle="None"
-        AllowsTransparency="True"
-        ResizeMode="CanResizeWithGrip">
+        AllowsTransparency="True">
 
     <Window.DataContext>
         <viewmodel:MainViewModel/>

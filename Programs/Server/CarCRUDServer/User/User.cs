@@ -23,9 +23,8 @@ namespace CarCRUD.User
         //Unique ID required to create a user
         public User(string _id) { userID = _id; }
 
-        //Events
+        //Events & delegates
         public delegate void MessageReceivedData(object _sender, string _message);
-
         public event MessageReceivedData OnMessageReceivedEvent;
         #endregion
 
