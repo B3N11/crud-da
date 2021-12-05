@@ -1,5 +1,7 @@
 ﻿using System;
-using CarCRUD.Networking;
+using CarCRUD.ServerHandle;
+using CarCRUD.DataModels;
+using System.Threading.Tasks;
 
 namespace CarCRUD
 {
@@ -22,7 +24,8 @@ namespace CarCRUD
             Console.WriteLine("Accepting clients...");
             Server.AcceptClients();
 
-            Console.ReadKey();
+            //Dont close program
+            Task.Delay(-1).GetAwaiter().GetResult();
         }
     }
 }
