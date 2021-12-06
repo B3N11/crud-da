@@ -11,9 +11,9 @@
         AllowsTransparency="True">
 
     <Window.DataContext>
-        <viewmodel:MainViewModel/>
+        <
     </Window.DataContext>
-
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20"/>

@@ -16,6 +16,15 @@
         Admin
     }
 
+    public enum NetMessageType
+    {
+        KeyAuthentication,
+        LoginRequest,
+        ReqistrationRequest,
+        LoginResponse,
+        AdminRegistrationRequest
+    }
+
     public enum LoginAttemptResult
     {
         //Login

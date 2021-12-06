@@ -37,11 +37,4 @@
     }
 
     public class RegistrationResponseMessage : LoginResponseMessage { }
-
-    public enum NetMessageType
-    {
-        KeyAuthentication,
-        LoginRequest,
-        ReqistrationRequest
-    }
 }

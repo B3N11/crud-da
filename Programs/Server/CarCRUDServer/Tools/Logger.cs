@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CarCRUD.DataModels;
+using System;
 using System.Collections.Generic;
 
 namespace CarCRUD.Tools
@@ -11,6 +12,13 @@ namespace CarCRUD.Tools
             if (_object == null) return;
 
             Console.WriteLine($"{DateTime.Now} STATUS UPDATE: Status of {_object.GetID()} is now {_object.GetState()}.");
+        }
+
+        public static void LogMessage(ILoggable _object, NetMessage _netMessage)
+        {
+            if (_object == null || _netMessage == null) return;
+
+            Console.WriteLine($"{DateTime.Now} MESSAGE ARRIVED: {_object.GetID()} sent message with type of {_netMessage.type}.");
         }
 
         public static void LogConnectionState(IEndpointLoggable _object)

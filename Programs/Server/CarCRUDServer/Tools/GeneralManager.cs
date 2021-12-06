@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using CarCRUD.Networking;
 using CarCRUD.DataModels;
 using Newtonsoft.Json;
+using System;
 
 namespace CarCRUD.Tools
 {
@@ -68,12 +69,18 @@ namespace CarCRUD.Tools
         {
             if (_object == null) return null;
 
-            NetMessage cast = GeneralManager.Deserialize<NetMessage>(_object);
+            NetMessage cast = Deserialize<NetMessage>(_object);
 
             switch (cast.type)
             {
                 case NetMessageType.KeyAuthentication:
-                    return GeneralManager.Deserialize<KeyAuthenticationMessage>(_object);
+                    return Deserialize<KeyAuthenticationMessage>(_object);
+
+                case NetMessageType.ReqistrationRequest:
+                    return Deserialize<RegistrationRequestMessage>(_object);
+
+                case NetMessageType.LoginRequest:
+                    return Deserialize<LoginRequestMessage>(_object);
             }
 
             return null;
@@ -103,24 +110,62 @@ namespace CarCRUD.Tools
         #endregion
 
         #region Encryption
-        public static string Encrypt(string _data)
+        /// <summary>
+        /// Performs Bitpush and Base64 convert on a string
+        /// </summary>
+        /// <param name="_data"></param>
+        /// <returns></returns>
+        public static string Encrypt(string _data, bool _encrypt)
         {
-            return CeasarEncrypt.Encrypt(_data, true, encryptionKey);
-        }
-
-        public static string Decrypt(string _data)
-        {
-            return CeasarEncrypt.Encrypt(_data, false, encryptionKey);
+            return CeasarEncrypt.Encrypt(_data, _encrypt, encryptionKey);
         }
         #endregion
 
         #region Hashing
+        /// <summary>
+        /// Returnes SHA256 hash of _data;
+        /// </summary>
+        /// <param name="_data"></param>
+        /// <returns></returns>
         public static string HashData(string _data)
         {
+            //Check call validity
             if (string.IsNullOrEmpty(_data)) return null;
 
             byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(_data));
-            string result = Encoding.UTF8.GetString(hash);
+            string result = Base64(hash, true);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Encodes/decodes _data to/from Base64.
+        /// </summary>
+        /// <param name="_data"></param>
+        /// <param name="encode"></param>
+        /// <returns></returns>
+        public static string Base64(string _data, bool encode)
+        {
+            //Check call validity
+            if (string.IsNullOrEmpty(_data)) return null;
+
+            string result = string.Empty;
+
+            if (encode) result = Convert.ToBase64String(Encoding.UTF8.GetBytes(_data));
+            else result = Encoding.UTF8.GetString(Convert.FromBase64String(_data));
+
+            return result;
+        }
+
+        public static string Base64(byte[] _data, bool encode)
+        {
+            //Check call validity
+            if (_data == null) return null;
+
+            string result = string.Empty;
+
+            if (encode) result = Convert.ToBase64String(_data);
+            else result = Encoding.UTF8.GetString(Convert.FromBase64String(Encoding.UTF8.GetString(_data)));
 
             return result;
         }

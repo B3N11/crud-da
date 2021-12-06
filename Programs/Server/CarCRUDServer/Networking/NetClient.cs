@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Threading;
 
 namespace CarCRUD.Networking
-{   
+{
     /// <summary>
     /// A class representing a connection with a remote endpoint. Can be used for sending, receiving data and handling connection.
     /// </summary>
@@ -49,7 +49,7 @@ namespace CarCRUD.Networking
         /// <summary>
         /// Raised when client is disconnected.
         /// </summary>
-        public event ClientDisconnected OnClientDisconnected;
+        public event ClientDisconnected OnClientDisconnectedEvent;
         /// <summary>
         /// Raised when a file transport finished or has been canceled.
         /// </summary>
@@ -82,7 +82,7 @@ namespace CarCRUD.Networking
 
             OnConnectionResultedEvent += ConnectionEventHandle;
             OnMessageReceivedEvent += MessageReceivedEventHandle;
-            OnClientDisconnected += DisconnectedEventHandle;
+            OnClientDisconnectedEvent += DisconnectedEventHandle;
             OnFileTransportResultedEvent += FileTransportResultedHandle;
 
             created = true;
@@ -254,8 +254,8 @@ namespace CarCRUD.Networking
             if (result)
                 return;
 
-            if (OnClientDisconnected != null)
-                OnClientDisconnected.Invoke(this);
+            if (OnClientDisconnectedEvent != null)
+                OnClientDisconnectedEvent.Invoke(this);
         }
 
         private async Task<bool> Send(byte[] data)
@@ -285,8 +285,8 @@ namespace CarCRUD.Networking
 
             if (result) return;
 
-            if (OnClientDisconnected != null)
-                OnClientDisconnected.Invoke(this);
+            if (OnClientDisconnectedEvent != null)
+                OnClientDisconnectedEvent.Invoke(this);
         }
 
         private async Task<bool> SendRaw(byte[] data)
@@ -313,8 +313,8 @@ namespace CarCRUD.Networking
             if (result) return;
 
             //Receive returned false => client is disconnected
-            if (OnClientDisconnected != null)
-                OnClientDisconnected.Invoke(this);
+            if (OnClientDisconnectedEvent != null)
+                OnClientDisconnectedEvent.Invoke(this);
         }
 
         /// <summary>
@@ -463,25 +463,21 @@ namespace CarCRUD.Networking
         #region Own Event Handlers
         private void ConnectionEventHandle(object _sender, ConnectionResultEventArgs _result)
         {
-            OnConnectionResultedEvent += ConnectionEventHandle;
+            
         }
 
         private void MessageReceivedEventHandle(object _sender, ref byte[] _data)
         {
-            OnMessageReceivedEvent += MessageReceivedEventHandle;
+            
         }
 
         private void DisconnectedEventHandle(object _sender)
         {
-            OnClientDisconnected += DisconnectedEventHandle;
-
             StopClient();
         }
 
         private void FileTransportResultedHandle(object _sender, bool _result)
         {
-            OnFileTransportResultedEvent += FileTransportResultedHandle;
-
             fileHandler?.Release(this);
 
             maxStreamBytes = 0;

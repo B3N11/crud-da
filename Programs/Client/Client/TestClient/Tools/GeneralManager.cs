@@ -1,10 +1,13 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using System.Text;
+using System.Security.Cryptography;
 using CarCRUD.Networking;
-using CarCRUD.Security;
+using CarCRUD.DataModels;
 using Newtonsoft.Json;
+using System;
 
-namespace CarCRUD
+namespace CarCRUD.Tools
 {
     /// <summary>
     /// Class for different non-program specific tasks
@@ -57,6 +60,28 @@ namespace CarCRUD
             return result;
         }
 
+        /// <summary>
+        /// Returns a NetMessage instance from a string based on their type.
+        /// </summary>
+        /// <param name="_object"></param>
+        /// <returns></returns>
+        public static NetMessage GetMessage(string _object)
+        {
+            if (_object == null) return null;
+
+            NetMessage cast = GeneralManager.Deserialize<NetMessage>(_object);
+
+            switch (cast.type)
+            {
+                case NetMessageType.KeyAuthentication:
+                    return GeneralManager.Deserialize<KeyAuthenticationMessage>(_object);
+            }
+
+            return null;
+        }
+        #endregion
+
+        #region Serializing
         public static string Serialize<T>(T _object)
         {
             if (_object == null) return null;
@@ -68,7 +93,7 @@ namespace CarCRUD
         }
 
         public static T Deserialize<T>(string _data)
-        {         
+        {
             if (_data == null) return default(T);
 
             T result = default(T);
@@ -79,14 +104,51 @@ namespace CarCRUD
         #endregion
 
         #region Encryption
-        public static string Encrypt(string _data)
+        /// <summary>
+        /// Performs Bitpush and Base64 convert on a string
+        /// </summary>
+        /// <param name="_data"></param>
+        /// <returns></returns>
+        public static string Encrypt(string _data, bool _encrypt)
         {
-            return CeasarEncrypt.Encrypt(_data, true, encryptionKey);
+            return CeasarEncrypt.Encrypt(_data, _encrypt, encryptionKey);
+        }
+        #endregion
+
+        #region Hashing
+        /// <summary>
+        /// Returnes SHA256 hash of _data;
+        /// </summary>
+        /// <param name="_data"></param>
+        /// <returns></returns>
+        public static string HashData(string _data)
+        {
+            //Check call validity
+            if (string.IsNullOrEmpty(_data)) return null;
+
+            byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(_data));
+            string result = Encoding.UTF8.GetString(hash);
+
+            return result;
         }
 
-        public static string Decrypt(string _data)
+        /// <summary>
+        /// Encodes/decodes _data to/from Base64.
+        /// </summary>
+        /// <param name="_data"></param>
+        /// <param name="encode"></param>
+        /// <returns></returns>
+        public static string Base64(string _data, bool encode)
         {
-            return CeasarEncrypt.Encrypt(_data, false, encryptionKey);
+            //Check call validity
+            if (string.IsNullOrEmpty(_data)) return null;
+
+            string result = string.Empty;
+
+            if (encode) result = Convert.ToBase64String(Encoding.UTF8.GetBytes(_data));
+            else result = Encoding.UTF8.GetString(Convert.FromBase64String(_data));
+
+            return result;
         }
         #endregion
     }

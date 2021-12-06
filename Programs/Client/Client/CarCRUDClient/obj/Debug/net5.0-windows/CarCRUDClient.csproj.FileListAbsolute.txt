@@ -22,3 +22,7 @@ D:\My Projects\GIT\crud-da\Programs\Client\Client\CarCRUDClient\obj\Debug\net5.0
 D:\My Projects\GIT\crud-da\Programs\Client\Client\CarCRUDClient\obj\Debug\net5.0-windows\CarCRUDClient.pdb
 D:\My Projects\GIT\crud-da\Programs\Client\Client\CarCRUDClient\obj\Debug\net5.0-windows\CarCRUDClient.genruntimeconfig.cache
 D:\My Projects\GIT\crud-da\Programs\Client\Client\CarCRUDClient\obj\Debug\net5.0-windows\GeneratedInternalTypeHelper.g.cs
+D:\My Projects\GIT\crud-da\Programs\Client\Client\CarCRUDClient\obj\Debug\net5.0-windows\Windows\LoginPopup\Login.g.cs
+D:\My Projects\GIT\crud-da\Programs\Client\Client\CarCRUDClient\obj\Debug\net5.0-windows\Windows\Main\App.g.cs
+D:\My Projects\GIT\crud-da\Programs\Client\Client\CarCRUDClient\obj\Debug\net5.0-windows\Windows\Main\MainWindow.g.cs
+D:\My Projects\GIT\crud-da\Programs\Client\Client\CarCRUDClient\obj\Debug\net5.0-windows\Login.g.cs

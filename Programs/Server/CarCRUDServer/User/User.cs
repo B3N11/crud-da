@@ -5,7 +5,9 @@ using CarCRUD.Tools;
 
 namespace CarCRUD.User
 {
-    //Represents a user
+    /// <summary>
+    /// Represents a connection with a potential user.
+    /// </summary>
     public class User : IEndpointLoggable
     {
         #region Properties
@@ -40,10 +42,6 @@ namespace CarCRUD.User
             //Check call validity
             if (_object == null || data == null || data.Length == 0) return;
 
-            //Resub for event
-            if(netClient != null)
-                netClient.OnMessageReceivedEvent += MessageReceived;
-
             //Decrypt message from received data
             string message = Encoding.UTF8.GetString(data);
 
@@ -51,18 +49,12 @@ namespace CarCRUD.User
                 OnMessageReceivedEvent(this, message);
         }
 
-        public void Send<T>(T _object)
+        public void Send(byte[] _data)
         {
             //Check connection
-            if (_object == null || netClient == null || !netClient.connected) return;
+            if (_data == null || _data.Length == 0 || netClient == null || !netClient.connected) return;
 
-            //Encrypt Data
-            string message = GeneralManager.Serialize(_object);
-            message = GeneralManager.Encrypt(message);
-
-            //Send
-            byte[] data = Encoding.UTF8.GetBytes(message);
-            netClient.SendAsync(data);
+            netClient.SendAsync(_data);
         }
         #endregion
 

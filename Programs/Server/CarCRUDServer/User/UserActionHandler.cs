@@ -53,7 +53,7 @@ namespace CarCRUD.User
             }
 
             //Send response
-            _user.Send(response);
+            UserController.Send(response, _user);
         }
 
         public static async void RegistrationHandle(RegistrationRequestMessage _message, User _user)
@@ -73,7 +73,7 @@ namespace CarCRUD.User
             }
 
             //Send response
-            _user.Send(response);
+            UserController.Send(response, _user);
         }
 
         private static async Task<UserData> CreateUser(RegistrationRequestMessage _message)
@@ -82,10 +82,11 @@ namespace CarCRUD.User
             if (_message == null) return null;
 
             //Instantiate new user
+            //Store data hashed or in base64 to prevent SQLi
             UserData newUser = new UserData();
             newUser.username = GeneralManager.HashData(_message.username);
             newUser.password = GeneralManager.HashData(_message.passwordFirst);
-            newUser.fullname = _message.fullname;
+            newUser.fullname = GeneralManager.Base64(_message.fullname, true);
             newUser.passwordAttempts = 0;
 
             UserRequest request = new UserRequest();
@@ -94,12 +95,12 @@ namespace CarCRUD.User
             newUser.request = request;
 
             //Set User type
-            try
+            if(_message.type == NetMessageType.AdminRegistrationRequest)
             {
                 AdminRegistrationRequestMessage adminMessage = _message as AdminRegistrationRequestMessage;
                 newUser.type = adminMessage.userType;
             }
-            catch { newUser.type = UserType.User; }
+            else newUser.type = UserType.User;
 
             //Save into db
             await DBController.CreateUser(newUser);

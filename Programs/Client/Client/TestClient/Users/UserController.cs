@@ -1,18 +1,30 @@
 ﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using CarCRUD.Networking;
+using CarCRUD.DataModels;
+using CarCRUD.Tools;
 using System.Text;
 
-namespace CarCRUD
+namespace CarCRUD.Users
 {
     class UserController
     {
         private static User user;
 
+        public delegate void ClientDisconnected();
+        public delegate void ClientConnected();
+
+        public static ClientDisconnected OnClientDisconnectedEvent;
+        public static ClientConnected OnClientConnectedEvent;
+
         #region Client Handle
+        //Connects to server
+        public static void Connect()
+        {
+            if (CheckClientConnection()) return;
+
+            user.netClient.ConnectAsync(Client.ip);
+        }
+
         /// <summary>
         /// Handles an established NetClient connection as new user.
         /// </summary>
@@ -23,8 +35,16 @@ namespace CarCRUD
             NetClient client = GeneralManager.CastNetClient(_object);
             if (client == null) return;
 
-            Console.WriteLine("Connected");
-            SendAuthentication();
+            //Failed connection attempt
+            if (crea.result == Result.Fail)
+                user.status = UserStatus.Disconnected;
+
+            //Successful connection
+            else
+            {
+                SendAuthentication();
+                user.status = UserStatus.PendingAuthentication;
+            }
         }
 
         public static void NetClientDisconnectedHandle(object _object)
@@ -33,10 +53,11 @@ namespace CarCRUD
             NetClient client = GeneralManager.CastNetClient(_object);
             if (client == null) return;
 
-            Console.WriteLine("Disconnected");
+            //Set status and raise event
+            user.status = UserStatus.Disconnected;
+            OnClientDisconnectedEvent?.Invoke();
         }
 
-        #region Authentication
         /// <summary>
         /// Starts the client authentication process and handles the result. If the specified user's client does not respond with the server's unique key in time, the server closes the connection.
         /// </summary>
@@ -50,10 +71,24 @@ namespace CarCRUD
             message.key = Client.key;
 
             //Send
-            user.Send(message);
+            Send(message);
         }
         #endregion
 
+        #region Messaging
+        public static void Send<T>(T _object)
+        {
+            //Check connection
+            if (_object == null || user == null) return;
+
+            //Encrypt Data
+            string message = GeneralManager.Serialize(_object);
+            message = GeneralManager.Encrypt(message, true);
+
+            //Send
+            byte[] data = Encoding.UTF8.GetBytes(message);
+            user.Send(data);
+        }
         #endregion
 
         #region User Handling
@@ -69,14 +104,7 @@ namespace CarCRUD
             user.netClient = new NetClient(Guid.NewGuid().ToString(), Client.port);
             user.netClient.OnMessageReceivedEvent += user.MessageReceived;
             user.netClient.OnConnectionResultedEvent += NetClientConnectedHandle;
-            user.netClient.OnClientDisconnected += NetClientDisconnectedHandle;
-        }
-
-        public static void Connect()
-        {
-            if (CheckClientConnection()) return;
-
-            user.netClient.ConnectAsync(Client.ip);
+            user.netClient.OnClientDisconnectedEvent += NetClientDisconnectedHandle;
         }
         #endregion
 

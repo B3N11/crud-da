@@ -7,6 +7,7 @@ using CarCRUD.DataModels;
 using CarCRUD.Networking;
 using CarCRUD.Tools;
 using CarCRUD.ServerHandle;
+using System.Text;
 
 namespace CarCRUD.User
 {
@@ -28,7 +29,7 @@ namespace CarCRUD.User
             //Create user instance for the newly connected client
             User newUser = new User(Guid.NewGuid().ToString());
             newUser.netClient = client;
-            newUser.netClient.OnClientDisconnected += NetClientDisconnectedHandle;
+            newUser.netClient.OnClientDisconnectedEvent += NetClientDisconnectedHandle;
             newUser.netClient.OnMessageReceivedEvent += newUser.MessageReceived;
             newUser.OnMessageReceivedEvent += MessageReceivedHandle;
             newUser.status = UserStatus.Connected;
@@ -129,22 +130,31 @@ namespace CarCRUD.User
             User user = null;
             try { user = _sender as User; } catch { return; }
 
-            //Resub for event
-            user.OnMessageReceivedEvent += MessageReceivedHandle;
-
-            //Resub for event
-            if(user.netClient != null)
-                user.netClient.OnMessageReceivedEvent += user.MessageReceived;
-
             //Decrypt message from received data
-            string decryptedMessage = GeneralManager.Decrypt(_message);
+            string decryptedMessage = GeneralManager.Encrypt(_message, false);
 
             //Get Message object and its type
             NetMessage message = GeneralManager.Deserialize<NetMessage>(decryptedMessage);
             message = GeneralManager.GetMessage(decryptedMessage);
 
+            if (Server.loggingEnabled) Logger.LogMessage(user, message);
+
             //Let message be handled based on its type
             HandleMessage(message, user);
+        }
+
+        public static void Send<T>(T _object, User _user)
+        {
+            //Check connection
+            if (_object == null || _user == null) return;
+
+            //Encrypt Data
+            string message = GeneralManager.Serialize(_object);
+            message = GeneralManager.Encrypt(message, true);
+
+            //Send
+            byte[] data = Encoding.UTF8.GetBytes(message);
+            _user.Send(data);
         }
         #endregion
 
@@ -153,8 +163,13 @@ namespace CarCRUD.User
         /// Handles a NetMessage instance based on their type. The method assumes the _message has been cast.
         /// </summary>
         /// <param name="_message"></param>
-        public static void HandleMessage(NetMessage _message, User _user)
+        private static void HandleMessage(NetMessage _message, User _user)
         {
+            //Check call validity
+            if (_message == null || _user == null) return;
+            //Check if message can be accepted from client
+            if (_message.type != NetMessageType.KeyAuthentication && _user.status == UserStatus.PendingAuthentication) return;
+
             switch (_message.type)
             {
                 case NetMessageType.KeyAuthentication:      //Key Auth Message
@@ -162,6 +177,9 @@ namespace CarCRUD.User
 
                 case NetMessageType.LoginRequest:       //Login Reques Message
                     UserActionHandler.LoginRequestHandleAsync(_message as LoginRequestMessage, _user); break;
+
+                case NetMessageType.ReqistrationRequest:
+                    UserActionHandler.RegistrationHandle(_message as RegistrationRequestMessage, _user); break;
             }
         }
         #endregion
