@@ -115,6 +115,11 @@ namespace CarCRUD.User
         #endregion
 
         #region Messaging
+        /// <summary>
+        /// Handles an arrived message.
+        /// </summary>
+        /// <param name="_sender"></param>
+        /// <param name="_message"></param>
         public static void MessageReceivedHandle(object _sender, string _message)
         {
             //Check call validity
@@ -139,7 +144,7 @@ namespace CarCRUD.User
             message = GeneralManager.GetMessage(decryptedMessage);
 
             //Let message be handled based on its type
-            HandleMessage(message, user.userID);
+            HandleMessage(message, user);
         }
         #endregion
 
@@ -148,12 +153,15 @@ namespace CarCRUD.User
         /// Handles a NetMessage instance based on their type. The method assumes the _message has been cast.
         /// </summary>
         /// <param name="_message"></param>
-        public static void HandleMessage(NetMessage _message, string _userID)
+        public static void HandleMessage(NetMessage _message, User _user)
         {
             switch (_message.type)
             {
-                case NetMessageType.KeyAuthentication:
-                    UserActionHandler.CheckArrivedKeyAuth(_message as KeyAuthenticationMessage, _userID); break;
+                case NetMessageType.KeyAuthentication:      //Key Auth Message
+                    UserActionHandler.CheckAuthenticationKey(_message as KeyAuthenticationMessage, _user); break;
+
+                case NetMessageType.LoginRequest:       //Login Reques Message
+                    UserActionHandler.LoginRequestHandleAsync(_message as LoginRequestMessage, _user); break;
             }
         }
         #endregion

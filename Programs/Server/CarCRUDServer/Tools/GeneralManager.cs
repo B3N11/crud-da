@@ -1,5 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using System.Text;
+using System.Security.Cryptography;
 using CarCRUD.Networking;
 using CarCRUD.DataModels;
 using Newtonsoft.Json;
@@ -109,6 +111,18 @@ namespace CarCRUD.Tools
         public static string Decrypt(string _data)
         {
             return CeasarEncrypt.Encrypt(_data, false, encryptionKey);
+        }
+        #endregion
+
+        #region Hashing
+        public static string HashData(string _data)
+        {
+            if (string.IsNullOrEmpty(_data)) return null;
+
+            byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(_data));
+            string result = Encoding.UTF8.GetString(hash);
+
+            return result;
         }
         #endregion
     }

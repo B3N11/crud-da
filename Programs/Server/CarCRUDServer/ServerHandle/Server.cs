@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Linq;
+using System.IO;
 using CarCRUD.Networking;
 using CarCRUD.User;
 using CarCRUD.DataModels;
 using CarCRUD.Tools;
-using System.IO;
+using CarCRUD.DataBase;
 
 namespace CarCRUD.ServerHandle
 {
@@ -31,9 +31,12 @@ namespace CarCRUD.ServerHandle
         #endregion
 
         #region General
-        public static void Start(ServerSettings _settings)
+        public static void Start(ServerSettings _settings, bool _startListening = true)
         {
             ApplySettings(_settings);
+            SetApplicationParameters();
+
+            if (_startListening) AcceptClients();
         }
 
         public static void Shutdown()
@@ -59,6 +62,12 @@ namespace CarCRUD.ServerHandle
             port = _settings.port;
 
             ncc = new NetClientController(Guid.NewGuid().ToString(), port);
+        }
+
+        private static void SetApplicationParameters()
+        {
+            LoginValidator.SetTools(DBController.GetUserByUsernameAsync, GeneralManager.HashData);
+            DBController.SetTools(new Context());
         }
 
         /// <summary>
