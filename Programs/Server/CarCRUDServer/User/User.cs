@@ -6,7 +6,7 @@ using CarCRUD.Tools;
 namespace CarCRUD.User
 {
     //Represents a user
-    class User : IEndpointLoggable
+    public class User : IEndpointLoggable
     {
         #region Properties
         //General User
@@ -18,6 +18,7 @@ namespace CarCRUD.User
         public NetClient netClient;
 
         //Login
+        public string lastUsername = string.Empty;
         public int loginAttempts = 0;
 
         //Unique ID required to create a user
@@ -48,6 +49,20 @@ namespace CarCRUD.User
 
             if (OnMessageReceivedEvent != null)
                 OnMessageReceivedEvent(this, message);
+        }
+
+        public void Send<T>(T _object)
+        {
+            //Check connection
+            if (_object == null || netClient == null || !netClient.connected) return;
+
+            //Encrypt Data
+            string message = GeneralManager.Serialize(_object);
+            message = GeneralManager.Encrypt(message);
+
+            //Send
+            byte[] data = Encoding.UTF8.GetBytes(message);
+            netClient.SendAsync(data);
         }
         #endregion
 

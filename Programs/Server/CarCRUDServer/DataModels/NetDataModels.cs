@@ -16,20 +16,27 @@
         public string password { get; set; }
     }
 
-    public class LoginResponse : NetMessage
+    public class LoginResponseMessage : NetMessage
     {
-        public bool success { get; set; }
+        public LoginAttemptResult result { get; set; }
         public UserType userType { get; set; }
+        public int logginTryLeft { get; set; }
     }
 
-    public class RegistrationRequest : NetMessage
+    public class RegistrationRequestMessage : NetMessage
     {
         public string username { get; set; }
-        public string password { get; set; }
+        public string passwordFirst { get; set; }
+        public string passwordSecond { get; set; }
         public string fullname { get; set; }
     }
 
-    public class RegistrationResponse : LoginResponse { }
+    public class AdminRegistrationRequestMessage : RegistrationRequestMessage
+    {
+        public UserType userType { get; set; }
+    }
+
+    public class RegistrationResponseMessage : LoginResponseMessage { }
 
     public enum NetMessageType
     {

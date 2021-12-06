@@ -54,10 +54,6 @@ namespace CarCRUD.Networking
         /// Raised when a file transport finished or has been canceled.
         /// </summary>
         public event FileTransportResulted OnFileTransportResultedEvent;
-        /// <summary>
-        /// Raised when a UDP message arrived.
-        /// </summary>
-        public event MessageReceived OnMessageReceivedUDPEvent;
 
         //Network General
         private int bufferSize = 65535;
@@ -86,7 +82,6 @@ namespace CarCRUD.Networking
 
             OnConnectionResultedEvent += ConnectionEventHandle;
             OnMessageReceivedEvent += MessageReceivedEventHandle;
-            OnMessageReceivedUDPEvent += MessageReceivedEventHandle;
             OnClientDisconnected += DisconnectedEventHandle;
             OnFileTransportResultedEvent += FileTransportResultedHandle;
 
