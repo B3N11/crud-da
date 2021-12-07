@@ -60,107 +60,48 @@ namespace CarCRUD.DataBase
             //Check call validtiy
             if (_user == null || !initialized) return false;
 
-            await Task.Run(() => {
-                database.Users.Add(_user);
-                database.UserRequests.Add(_user.request);
-                });
+            await Task.Run(() => database.Users.Add(_user));
 
             await database.SaveChangesAsync();
             return true;
         }
 
-        /// <summary>
-        /// Increases or resets login try incrementer of a user.
-        /// </summary>
-        /// <param name="_username"></param>
-        /// <param name="reset"></param>
-        public static async Task<bool> SetLoginTryAsync(string _username, bool reset = false)
+        public static async Task<bool> SetUserData(UserData _userData, int ID)
         {
-            //Check call validitiy
-            if (string.IsNullOrEmpty(_username) || !initialized) return false;
-
-            await Task.Run(() => SetLoginTry(_username, reset));
-            return true;
-        }
-
-        private static async Task<bool> SetLoginTry(string _username, bool reset = false)
-        {
-            //Check call validitiy
-            if (string.IsNullOrEmpty(_username) || !initialized) return false;
-
-            //Get user
-            UserData user = null;
-            try { user = database.Users.First(u => u.username == _username); } catch { return false; }
-
-            //Set tries. If reset, set it to zero
-            if (!reset)
-                user.passwordAttempts = Math.Clamp(++user.passwordAttempts, 0, 5);
-            else user.passwordAttempts = 0;
-
-            //If password attempts reached 5
-            if (user.passwordAttempts == 5)
-            {
-                await LockUserAsync(user);
-                return true;
-            }
-
-            //Save
-            await database.SaveChangesAsync();
-            return true;
-        }
-
-        /// <summary>
-        /// Sets the user's account to inactive
-        /// </summary>
-        /// <param name="_user"></param>
-        /// <returns></returns>
-        public static async Task<bool> LockUserAsync(string _user)
-        {
-            //Check call validitiy
-            if (_user == null || !initialized) return false;
-
-            bool result = await Task.Run(() => LockUser(_user));
-            return result;
-        }
-
-        /// <summary>
-        /// Sets the user's account to inactive
-        /// </summary>
-        /// <param name="_user"></param>
-        /// <returns></returns>
-        public static async Task<bool> LockUserAsync(UserData _user)
-        {
-            //Check call validitiy
-            if (_user == null || !initialized) return false;
-
-            bool result = await Task.Run(() => LockUser(_user));
-            return result;
-        }
-
-        private static bool LockUser(string _username)
-        {
-            //Check call validitiy
-            if (string.IsNullOrEmpty(_username) || !initialized) return false;
+            if (_userData == null) return false;
 
             UserData user = null;
-            try { user = database.Users.First(u => u.username == _username); } catch { return false; }
-            user.active = false;
+            try { user = await Task.Run(() => database.Users.First(u => u.ID == ID)); } catch { return false; }
+            user = _userData;
+            user.ID = ID;
 
-            database.SaveChangesAsync();
-            return true;
-        }
-
-        private static async Task<bool> LockUser(UserData _user)
-        {
-            //Check call validitiy
-            if (_user == null || !initialized) return false;
-
-            //Lock
-            _user.active = false;
-
-            //Save
             await database.SaveChangesAsync();
             return true;
+        }
+        #endregion
+
+        #region Create Data
+        public static async Task<UserRequestResult> CreateCarBrandRequestAsync(string _message, UserData _user)
+        {
+            if (_message == null) return UserRequestResult.Fail;
+
+            string carBrand = null;
+
+            //Check in requests
+            try { carBrand = await Task.Run(() => database.UserRequests.First(u => u.brand == _message).brand); }
+            //Check in already existing brands
+            catch { try { carBrand = await Task.Run(() => database.CarBrands.First(u => u.name == _message).name); } catch { } }
+
+            //If there was a match
+            if (carBrand != null) return UserRequestResult.CarPropertyAlreadyRequestedOrExists;
+
+            UserBrandRequest request = new UserBrandRequest();
+            request.brand = _message;
+            request.user = _user;
+
+            database.UserRequests.Add(request);
+            await database.SaveChangesAsync();
+            return UserRequestResult.Success;
         }
         #endregion
     }

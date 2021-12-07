@@ -1,5 +1,6 @@
 ﻿using System;
 using CarCRUD.DataModels;
+using CarCRUD.Users;
 
 namespace CarCRUD
 {
@@ -17,6 +18,9 @@ namespace CarCRUD
             if (_message == null) return;
 
             Console.WriteLine($"Login response: {_message.result} with login attempts left: {_message.loginTryLeft}. Other data: {_message.user?.fullname}");
+
+            if (_message.result == LoginAttemptResult.Success)
+                UserController.SetUserData(_message.user);
 
             _additionalLoginHandle?.Invoke(_message);
         }

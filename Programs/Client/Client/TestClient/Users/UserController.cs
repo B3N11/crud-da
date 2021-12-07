@@ -128,6 +128,13 @@ namespace CarCRUD.Users
             user.netClient.OnConnectionResultedEvent += NetClientConnectedHandle;
             user.netClient.OnClientDisconnectedEvent += NetClientDisconnectedHandle;
         }
+
+        public static void SetUserData(UserData _data)
+        {
+            if (_data == null) return;
+
+            user.userData = _data;
+        }
         #endregion
 
         #region Action Handling

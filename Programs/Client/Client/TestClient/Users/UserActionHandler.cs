@@ -9,6 +9,7 @@ namespace CarCRUD.Users
 {
     public class UserActionHandler
     {
+        #region Connection & Login
         public static bool RequestLogin(string _username, string _password)
         {
             //Check call validity
@@ -57,5 +58,23 @@ namespace CarCRUD.Users
 
             UserController.Send(message);
         }
+        #endregion
+
+        #region Requests
+        public static void AccountDeleteRequest()
+        {
+            UserController.Send(new AccountDeleteRequestMessage());
+        }
+
+        public static void CarBrandRequest(string _brand)
+        {
+            if (string.IsNullOrEmpty(_brand)) return;
+
+            CarBrandAddRequestMessage message = new CarBrandAddRequestMessage();
+            message.brandName = _brand;
+
+            UserController.Send(message);
+        }
+        #endregion
     }
 }

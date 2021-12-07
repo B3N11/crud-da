@@ -18,12 +18,20 @@
 
     public enum NetMessageType
     {
+        //Connection
         KeyAuthentication,
         LoginRequest,
         ReqistrationRequest,
         LoginResponse,
         AdminRegistrationRequest,
-        Logout
+        AdminRegistrationResponse,
+        Logout,
+
+        //Requests
+        AccountDeleteRequest,
+        AccountDeleteResponse,
+        CarBrandAddRequest,
+        CarBrandAddResponse
     }
 
     public enum LoginAttemptResult
@@ -42,5 +50,13 @@
         //General
         Success,    //Successful login
         Failure     //Fail in code
+    }
+
+    public enum UserRequestResult
+    {
+        AccountDeleteAlreadyRequested,
+        CarPropertyAlreadyRequestedOrExists,
+        Success,
+        Fail
     }
 }

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CarCRUD.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20211207161149_Initial")]
+    [Migration("20211207213142_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -107,12 +107,35 @@ namespace CarCRUD.Migrations
                     b.ToTable("CarType");
                 });
 
+            modelBuilder.Entity("CarCRUD.DataModels.UserBrandRequest", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("brand")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("userID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("userID");
+
+                    b.ToTable("UserRequests");
+                });
+
             modelBuilder.Entity("CarCRUD.DataModels.UserData", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("accountDeleteRequested")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("active")
                         .HasColumnType("bit");
@@ -126,9 +149,6 @@ namespace CarCRUD.Migrations
                     b.Property<int>("passwordAttempts")
                         .HasColumnType("int");
 
-                    b.Property<int?>("requestID")
-                        .HasColumnType("int");
-
                     b.Property<int>("type")
                         .HasColumnType("int");
 
@@ -137,27 +157,7 @@ namespace CarCRUD.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("requestID");
-
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("CarCRUD.DataModels.UserRequest", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<bool>("accountRemove")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("brandAttach")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("UserRequests");
                 });
 
             modelBuilder.Entity("CarCRUD.DataModels.CarFavourite", b =>
@@ -193,13 +193,13 @@ namespace CarCRUD.Migrations
                     b.Navigation("brand");
                 });
 
-            modelBuilder.Entity("CarCRUD.DataModels.UserData", b =>
+            modelBuilder.Entity("CarCRUD.DataModels.UserBrandRequest", b =>
                 {
-                    b.HasOne("CarCRUD.DataModels.UserRequest", "request")
+                    b.HasOne("CarCRUD.DataModels.UserData", "user")
                         .WithMany()
-                        .HasForeignKey("requestID");
+                        .HasForeignKey("userID");
 
-                    b.Navigation("request");
+                    b.Navigation("user");
                 });
 #pragma warning restore 612, 618
         }

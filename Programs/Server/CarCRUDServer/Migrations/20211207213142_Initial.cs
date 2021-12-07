@@ -21,17 +21,22 @@ namespace CarCRUD.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserRequests",
+                name: "Users",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    accountRemove = table.Column<bool>(type: "bit", nullable: false),
-                    brandAttach = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    username = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    password = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    fullname = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    passwordAttempts = table.Column<int>(type: "int", nullable: false),
+                    type = table.Column<int>(type: "int", nullable: false),
+                    active = table.Column<bool>(type: "bit", nullable: false),
+                    accountDeleteRequested = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserRequests", x => x.ID);
+                    table.PrimaryKey("PK_Users", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -55,26 +60,21 @@ namespace CarCRUD.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Users",
+                name: "UserRequests",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    username = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    password = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    fullname = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    passwordAttempts = table.Column<int>(type: "int", nullable: false),
-                    type = table.Column<int>(type: "int", nullable: false),
-                    active = table.Column<bool>(type: "bit", nullable: false),
-                    requestID = table.Column<int>(type: "int", nullable: true)
+                    brand = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    userID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.ID);
+                    table.PrimaryKey("PK_UserRequests", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_Users_UserRequests_requestID",
-                        column: x => x.requestID,
-                        principalTable: "UserRequests",
+                        name: "FK_UserRequests_Users_userID",
+                        column: x => x.userID,
+                        principalTable: "Users",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -149,15 +149,18 @@ namespace CarCRUD.Migrations
                 column: "userDataID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_requestID",
-                table: "Users",
-                column: "requestID");
+                name: "IX_UserRequests_userID",
+                table: "UserRequests",
+                column: "userID");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
                 name: "CarImages");
+
+            migrationBuilder.DropTable(
+                name: "UserRequests");
 
             migrationBuilder.DropTable(
                 name: "FavouriteCars");
@@ -170,9 +173,6 @@ namespace CarCRUD.Migrations
 
             migrationBuilder.DropTable(
                 name: "CarBrands");
-
-            migrationBuilder.DropTable(
-                name: "UserRequests");
         }
     }
 }

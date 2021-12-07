@@ -1,4 +1,6 @@
-﻿namespace CarCRUD.DataModels
+﻿using System.Collections.Generic;
+
+namespace CarCRUD.DataModels
 {
     public class UserData
     {
@@ -9,14 +11,14 @@
         public int passwordAttempts { get; set; }
         public UserType type { get; set; }
         public bool active { get; set; }
-        public UserRequest request { get; set; }
+        public bool accountDeleteRequested { get; set; }
     }
 
-    public class UserRequest
+    public class UserBrandRequest
     {
         public int ID { get; set; }
-        public bool accountRemove { get; set; }
-        public string brandAttach { get; set; }
+        public string brand { get; set; }
+        public UserData user { get; set; }
     }
 
     public class CarBrand

@@ -182,6 +182,12 @@ namespace CarCRUD.User
 
                 case NetMessageType.Logout:
                     DropUser(_user); break;
+
+                case NetMessageType.AccountDeleteRequest:
+                    UserActionHandler.AccountDeleteRequestHandle(_user); break;
+
+                case NetMessageType.CarBrandAddRequest:
+                    UserActionHandler.CarBrandRequestHandle(_message as CarBrandAddRequestMessage, _user); break;
             }
         }
         #endregion

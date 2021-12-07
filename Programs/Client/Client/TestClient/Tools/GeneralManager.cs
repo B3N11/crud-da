@@ -69,9 +69,9 @@ namespace CarCRUD.Tools
         {
             if (_object == null) return null;
 
-            NetMessage cast = Deserialize<NetMessage>(_object);
+            NetMessage result = Deserialize<NetMessage>(_object);
 
-            switch (cast.type)
+            switch (result.type)
             {
                 case NetMessageType.KeyAuthentication:
                     return Deserialize<KeyAuthenticationMessage>(_object);
@@ -82,11 +82,11 @@ namespace CarCRUD.Tools
                 case NetMessageType.LoginRequest:
                     return Deserialize<LoginRequestMessage>(_object);
 
-                case NetMessageType.LoginResponse:
-                    return Deserialize<LoginResponseMessage>(_object);
+                case NetMessageType.AdminRegistrationRequest:
+                    return Deserialize<AdminRegistrationRequestMessage>(_object);
             }
 
-            return null;
+            return result;
         }
         #endregion
 
@@ -112,7 +112,7 @@ namespace CarCRUD.Tools
         }
         #endregion
 
-        #region Encryption
+        #region Hashing
         /// <summary>
         /// Performs Bitpush and Base64 convert on a string
         /// </summary>
@@ -122,9 +122,7 @@ namespace CarCRUD.Tools
         {
             return CeasarEncrypt.Encrypt(_data, _encrypt, encryptionKey);
         }
-        #endregion
 
-        #region Hashing
         /// <summary>
         /// Returnes SHA256 hash of _data;
         /// </summary>
@@ -190,7 +188,7 @@ namespace CarCRUD.Tools
             result.active = _user.active;
             result.passwordAttempts = _user.passwordAttempts;
             result.ID = _user.ID;
-            result.request = _user.request;
+            result.accountDeleteRequested = _user.accountDeleteRequested;
             result.type = _user.type;
 
             return result;

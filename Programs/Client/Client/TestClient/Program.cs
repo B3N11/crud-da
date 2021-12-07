@@ -23,11 +23,17 @@ namespace CarCRUD
 
             //UserActionHandler.RequestRegistration(username, password, password2, fullname);
             UserActionHandler.RequestLogin(username, password);
-            //Console.WriteLine("Login requested");
-            Console.WriteLine("Logout Request: Press key...");
+            Console.WriteLine("Login requested");
+
             Console.ReadKey();
-            Console.WriteLine("Logout");
-            UserActionHandler.Logout();
+            Console.WriteLine("Car Brand:");
+            string brand = Console.ReadLine();
+            UserActionHandler.CarBrandRequest(brand);
+            Console.WriteLine("Brand requested");
+            //Console.WriteLine("Logout Request: Press key...");
+            //Console.ReadKey();
+            //Console.WriteLine("Logout");
+            //UserActionHandler.Logout();
 
             Task.Delay(-1).GetAwaiter().GetResult();
         }
