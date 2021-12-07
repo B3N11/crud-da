@@ -36,20 +36,29 @@ namespace CarCRUD.User
             //Check credentials and create response message
             LoginValidationResult result = await LoginValidator.ValidateLoginAsync(_message);
             LoginResponseMessage response = new LoginResponseMessage();
+            response.type = NetMessageType.LoginResponse;
             response.result = result.result;
 
             //Set invalid password incrementer
             if(result.result == LoginAttemptResult.InvalidPassword)
-                await DBController.SetLoginTryAsync(GeneralManager.HashData(_message.username));
+            {
+                await DBController.SetLoginTryAsync(result.userData.username);
+                response.loginTryLeft = (5 - result.userData.passwordAttempts);
+            }
 
             //Uppon successfull login
             if (result.result == LoginAttemptResult.Success)
             {
+                //Reset login attempts
+                await DBController.SetLoginTryAsync(result.userData.username, true);
+
                 //Link UserData to User client
                 _user.userData = result.userData;
-                response.userType = result.userData.type;
-                //Reset login attempts
-                await DBController.SetLoginTryAsync(GeneralManager.HashData(_message.username), true);
+
+                //Send back user information                
+                UserData sendUser = GeneralManager.EncodeUser(_user.userData, false);
+                sendUser.password = "N/A";      //Dont send password even to admin
+                response.user = sendUser;
             }
 
             //Send response
@@ -63,17 +72,37 @@ namespace CarCRUD.User
 
             LoginValidationResult result = await LoginValidator.ValidateRegistrationAsync(_message);
             RegistrationResponseMessage response = new RegistrationResponseMessage();
+            response.type = NetMessageType.LoginResponse;
             response.result = result.result;
 
             if(result.result == LoginAttemptResult.Success)
             {
+                //Create new user
                 UserData user = await CreateUser(_message);
-                response.userType = user.type;
                 _user.userData = user;
+
+                //Send back user information
+                UserData sendUser = GeneralManager.EncodeUser(user, false);
+                sendUser.password = "N/A";      //Dont send password even to admin
+                response.user = sendUser;
             }
 
             //Send response
             UserController.Send(response, _user);
+        }
+
+        public static async void AdminCreateUserHandle(RegistrationRequestMessage _message, User _user)
+        {
+            //Check call validity
+            if (_message == null || _user == null) return;
+
+            //If user is not admin
+            if (_user.userData?.type != UserType.Admin) return;
+
+            LoginValidationResult result = await LoginValidator.ValidateRegistrationAsync(_message);
+            RegistrationResponseMessage response = new RegistrationResponseMessage();
+            response.type = NetMessageType.LoginResponse;
+            response.result = result.result;
         }
 
         private static async Task<UserData> CreateUser(RegistrationRequestMessage _message)
@@ -82,11 +111,12 @@ namespace CarCRUD.User
             if (_message == null) return null;
 
             //Instantiate new user
-            //Store data hashed or in base64 to prevent SQLi
+            //Store data hashed or with custom encryption to prevent SQLi
             UserData newUser = new UserData();
             newUser.username = GeneralManager.HashData(_message.username);
             newUser.password = GeneralManager.HashData(_message.passwordFirst);
-            newUser.fullname = GeneralManager.Base64(_message.fullname, true);
+            newUser.fullname = GeneralManager.Encrypt(_message.fullname, true);
+            newUser.active = true;
             newUser.passwordAttempts = 0;
 
             UserRequest request = new UserRequest();

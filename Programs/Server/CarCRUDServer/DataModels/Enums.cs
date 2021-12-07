@@ -22,7 +22,9 @@
         LoginRequest,
         ReqistrationRequest,
         LoginResponse,
-        AdminRegistrationRequest
+        AdminRegistrationRequest,
+        AdminRegistrationResponse,
+        Logout
     }
 
     public enum LoginAttemptResult

@@ -134,8 +134,7 @@ namespace CarCRUD.User
             string decryptedMessage = GeneralManager.Encrypt(_message, false);
 
             //Get Message object and its type
-            NetMessage message = GeneralManager.Deserialize<NetMessage>(decryptedMessage);
-            message = GeneralManager.GetMessage(decryptedMessage);
+            NetMessage message = GeneralManager.GetMessage(decryptedMessage);
 
             if (Server.loggingEnabled) Logger.LogMessage(user, message);
 
@@ -180,6 +179,9 @@ namespace CarCRUD.User
 
                 case NetMessageType.ReqistrationRequest:
                     UserActionHandler.RegistrationHandle(_message as RegistrationRequestMessage, _user); break;
+
+                case NetMessageType.Logout:
+                    DropUser(_user); break;
             }
         }
         #endregion

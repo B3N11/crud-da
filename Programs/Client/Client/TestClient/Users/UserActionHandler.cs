@@ -23,6 +23,14 @@ namespace CarCRUD.Users
             return true;
         }
 
+        /// <summary>
+        /// Sends registration request to server.
+        /// </summary>
+        /// <param name="_username"></param>
+        /// <param name="_passwordFirst"></param>
+        /// <param name="_passwordSecond"></param>
+        /// <param name="_fullname"></param>
+        /// <returns></returns>
         public static bool RequestRegistration(string _username, string _passwordFirst, string _passwordSecond, string _fullname)
         {
             if (string.IsNullOrEmpty(_username) || string.IsNullOrEmpty(_passwordFirst) || string.IsNullOrEmpty(_passwordSecond) || string.IsNullOrEmpty(_fullname))
@@ -37,6 +45,17 @@ namespace CarCRUD.Users
 
             UserController.Send(message);
             return true;
+        }
+
+        /// <summary>
+        /// Sends logout indicator message
+        /// </summary>
+        public static void Logout()
+        {
+            NetMessage message = new NetMessage();
+            message.type = NetMessageType.Logout;
+
+            UserController.Send(message);
         }
     }
 }

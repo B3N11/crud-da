@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CarCRUD.DataModels;
-using CarCRUD.Tools;
 
 namespace CarCRUD.DataBase
 {

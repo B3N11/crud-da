@@ -11,7 +11,7 @@ namespace CarCRUD.ServerHandle
         /// Controller stores the functions to call for each check
         /// </summary>
         public delegate Task<UserData> UsernameCheck(string _username);
-        public delegate string DataHasher(string _data);
+        public delegate string DataHasher(string _data, bool _base64);
 
         private static UsernameCheck CheckUsername;
         private static DataHasher HashData;
@@ -39,8 +39,8 @@ namespace CarCRUD.ServerHandle
                 return new LoginValidationResult(LoginAttemptResult.Failure);
 
             //Hash Data
-            string hashedUsername = HashData(_message.username);
-            string hashedPassword = HashData(_message.password);
+            string hashedUsername = HashData(_message.username, true);
+            string hashedPassword = HashData(_message.password, true);
 
             //Check Credentials
             UserData userData = await CheckUsername(hashedUsername);
@@ -62,7 +62,7 @@ namespace CarCRUD.ServerHandle
             if (_message == null || !initialized) return null;
 
             //Check username existance
-            string hashedUsername = HashData(_message.username);
+            string hashedUsername = HashData(_message.username, true);
             UserData userData = await CheckUsername(hashedUsername);
             if (userData != null) return new LoginValidationResult(LoginAttemptResult.UsernameExists);
 

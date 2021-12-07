@@ -56,6 +56,8 @@ namespace CarCRUD.Users
             //Set status and raise event
             user.status = UserStatus.Disconnected;
             OnClientDisconnectedEvent?.Invoke();
+
+            Console.WriteLine("Disconnected");
         }
 
         /// <summary>
@@ -76,6 +78,25 @@ namespace CarCRUD.Users
         #endregion
 
         #region Messaging
+        public static void MessageReceivedHandle(object _sender, string _message)
+        {
+            //Check call validity
+            if (_sender == null || string.IsNullOrEmpty(_message)) return;
+
+            //Check user validity
+            User user = null;
+            try { user = _sender as User; } catch { return; }
+
+            //Decrypt message from received data
+            string decryptedMessage = GeneralManager.Encrypt(_message, false);
+
+            //Get Message object and its type
+            NetMessage message = GeneralManager.GetMessage(decryptedMessage);
+
+            //Let message be handled based on its type
+            HandleMessage(message, user);
+        }
+
         public static void Send<T>(T _object)
         {
             //Check connection
@@ -103,6 +124,7 @@ namespace CarCRUD.Users
             user = new User(Guid.NewGuid().ToString());
             user.netClient = new NetClient(Guid.NewGuid().ToString(), Client.port);
             user.netClient.OnMessageReceivedEvent += user.MessageReceived;
+            user.OnMessageReceivedEvent += MessageReceivedHandle;
             user.netClient.OnConnectionResultedEvent += NetClientConnectedHandle;
             user.netClient.OnClientDisconnectedEvent += NetClientDisconnectedHandle;
         }
@@ -113,11 +135,15 @@ namespace CarCRUD.Users
         /// Handles a NetMessage instance based on their type. The method assumes the _message has been cast.
         /// </summary>
         /// <param name="_message"></param>
-        public static void HandleMessage(NetMessage _message, string _userID)
+        private static void HandleMessage(NetMessage _message, User _user)
         {
+            //Check call validity
+            if (_message == null || _user == null) return;            
+
             switch (_message.type)
             {
-                
+                case NetMessageType.LoginResponse:       //Login Reques Message
+                    ResponseHandler.LoginResponseHandle(_message as LoginResponseMessage); break;
             }
         }
         #endregion

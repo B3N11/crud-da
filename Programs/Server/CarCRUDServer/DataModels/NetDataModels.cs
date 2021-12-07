@@ -19,8 +19,8 @@
     public class LoginResponseMessage : NetMessage
     {
         public LoginAttemptResult result { get; set; }
-        public UserType userType { get; set; }
-        public int logginTryLeft { get; set; }
+        public int loginTryLeft { get; set; }
+        public UserData user { get; set; }
     }
 
     public class RegistrationRequestMessage : NetMessage

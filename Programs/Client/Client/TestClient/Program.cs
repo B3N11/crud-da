@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using CarCRUD.Users;
 
@@ -15,11 +16,18 @@ namespace CarCRUD
             string username = Console.ReadLine();
             Console.WriteLine("password:");
             string password = Console.ReadLine();
-            Console.WriteLine("fullname:");
-            string fullname = Console.ReadLine();
+            //Console.WriteLine("password again:");
+            //string password2 = Console.ReadLine();
+            //Console.WriteLine("fullname:");
+            //string fullname = Console.ReadLine();
 
-            UserActionHandler.RequestRegistration(username, password, password, fullname);
-            Console.WriteLine("Login requested");
+            //UserActionHandler.RequestRegistration(username, password, password2, fullname);
+            UserActionHandler.RequestLogin(username, password);
+            //Console.WriteLine("Login requested");
+            Console.WriteLine("Logout Request: Press key...");
+            Console.ReadKey();
+            Console.WriteLine("Logout");
+            UserActionHandler.Logout();
 
             Task.Delay(-1).GetAwaiter().GetResult();
         }

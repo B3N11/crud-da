@@ -45,7 +45,7 @@ namespace CarCRUD.Users
             string message = Encoding.UTF8.GetString(data);
 
             if (OnMessageReceivedEvent != null)
-                OnMessageReceivedEvent(this, message);
+                OnMessageReceivedEvent.Invoke(this, message);
         }
 
         public void Send(byte[] _data)

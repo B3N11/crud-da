@@ -81,6 +81,12 @@ namespace CarCRUD.Tools
 
                 case NetMessageType.LoginRequest:
                     return Deserialize<LoginRequestMessage>(_object);
+
+                case NetMessageType.Logout:
+                    return cast;
+
+                case NetMessageType.AdminRegistrationRequest:
+                    return Deserialize<AdminRegistrationRequestMessage>(_object);
             }
 
             return null;
@@ -127,7 +133,7 @@ namespace CarCRUD.Tools
         /// </summary>
         /// <param name="_data"></param>
         /// <returns></returns>
-        public static string HashData(string _data)
+        public static string HashData(string _data, bool base64 = true)
         {
             //Check call validity
             if (string.IsNullOrEmpty(_data)) return null;
@@ -166,6 +172,29 @@ namespace CarCRUD.Tools
 
             if (encode) result = Convert.ToBase64String(_data);
             else result = Encoding.UTF8.GetString(Convert.FromBase64String(Encoding.UTF8.GetString(_data)));
+
+            return result;
+        }
+
+        /// <summary>
+        /// Encodes/decodes the data of a user.
+        /// </summary>
+        /// <param name="_user"></param>
+        /// <param name="_encode"></param>
+        /// <returns></returns>
+        public static UserData EncodeUser(UserData _user, bool _encode)
+        {
+            if (_user == null) return null;
+
+            UserData result = new UserData();
+            result.username = Base64(_user.username, _encode);
+            result.password = Base64(_user.password, _encode);
+            result.fullname = Encrypt(_user.fullname, _encode);
+            result.active = _user.active;
+            result.passwordAttempts = _user.passwordAttempts;
+            result.ID = _user.ID;
+            result.request = _user.request;
+            result.type = _user.type;
 
             return result;
         }
