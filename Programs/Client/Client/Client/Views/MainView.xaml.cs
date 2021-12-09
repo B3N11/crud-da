@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 
-namespace Client.Views
+namespace CarCRUD.Views
 {
     /// <summary>
     /// Interaction logic for MainView.xaml

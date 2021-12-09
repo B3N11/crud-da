@@ -1,9 +1,9 @@
-﻿<Window x:Class="Client.Views.MainView"
+﻿<Window x:Class="CarCRUD.Views.MainView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Client.Views"
+        xmlns:local="clr-namespace:CarCRUD.Views"
         mc:Ignorable="d"
         Title="MainWindow" Height="610" Width="1060"
         WindowStyle="None"
@@ -23,6 +23,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="20"/>
                 <RowDefinition/>
+                <RowDefinition Height="20"/>
             </Grid.RowDefinitions>
             
             <!-- Window Header -->
@@ -70,6 +71,18 @@
             
             <!-- Content -->
             <ContentControl Grid.Row="1" x:Name="ActiveItem"/>
+
+            <!-- Connection Status Text -->
+            <Border Grid.Row="2"
+                    CornerRadius="0,0,8,8"
+                    Background="#252e4a">
+                <TextBlock x:Name="ConnectionState"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Center"
+                           Margin="5,0,0,0"
+                           Text="Connecting to server..."
+                           Foreground="Orange"/>
+            </Border>            
         </Grid>
     </Border>
 </Window>

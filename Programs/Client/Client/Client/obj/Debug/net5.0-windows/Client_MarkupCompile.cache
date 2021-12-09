@@ -5,16 +5,16 @@ winexe
 C#
 .cs
 D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\
-Client
+CarCRUD
 none
 false
 TRACE;DEBUG;NET;NET5_0;NETCOREAPP
 D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\App.xaml
-42058982328
+9760412280
 
-20-1135771290
+27-1132102709
 218-1412540779
-Themes\LoginButtonTheme.xaml;Themes\WindowControlButtonTheme.xaml;Views\LoginView.xaml;Views\MainView.xaml;
+Themes\LoginButtonTheme.xaml;Themes\TextboxTheme.xaml;Themes\TitleTheme.xaml;Themes\WindowControlButtonTheme.xaml;Views\DisconnectedView.xaml;Views\HomeView.xaml;Views\LoginView.xaml;Views\MainView.xaml;Views\RegistrationView.xaml;
 
 False
 

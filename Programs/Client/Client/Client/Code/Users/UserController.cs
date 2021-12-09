@@ -3,6 +3,7 @@ using CarCRUD.Networking;
 using CarCRUD.DataModels;
 using CarCRUD.Tools;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CarCRUD.Users
 {
@@ -11,18 +12,22 @@ namespace CarCRUD.Users
         private static User user;
 
         public delegate void ClientDisconnected();
-        public delegate void ClientConnected();
+        public delegate void ClientConnectionResulted(bool result);
+        public delegate void ClientConnecting();
 
         public static ClientDisconnected OnClientDisconnectedEvent;
-        public static ClientConnected OnClientConnectedEvent;
+        public static ClientConnectionResulted OnClientConnectionResultedEvent;
+        public static ClientConnecting OnClientConnectingEvent;
 
         #region Client Handle
         //Connects to server
         public static void Connect()
         {
-            if (CheckClientConnection()) return;
+            if (!CheckClientConnection()) return;
 
             user.netClient.ConnectAsync(Client.ip);
+
+            OnClientConnectingEvent?.Invoke();
         }
 
         /// <summary>
@@ -37,13 +42,17 @@ namespace CarCRUD.Users
 
             //Failed connection attempt
             if (crea.result == Result.Fail)
+            {
                 user.status = UserStatus.Disconnected;
+                OnClientConnectionResultedEvent?.Invoke(false);
+            }
 
             //Successful connection
             else
             {
                 SendAuthentication();
                 user.status = UserStatus.PendingAuthentication;
+                OnClientConnectionResultedEvent?.Invoke(true);
             }
         }
 
@@ -157,13 +166,13 @@ namespace CarCRUD.Users
 
         #region Others
         /// <summary>
-        /// Check the user and client instance. If they are not null, then client.connected will be returned
+        /// Check the user and client instance. If they are not null, true will be returned
         /// </summary>
         /// <param name="connected"></param>
         /// <returns></returns>
         private static bool CheckClientConnection()
         {
-            bool result = user == null ? false : (user.netClient == null) ? false : user.netClient.connected;
+            bool result = user == null ? false : (user.netClient == null) ? false : true;
 
             return result; 
         }

@@ -1,0 +1,69 @@
+﻿<Window x:Class="CarCRUD.Views.DisconnectedView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CarCRUD.Views"
+        mc:Ignorable="d"
+        Title="Window1" Height="350" Width="250"
+        WindowStyle="None"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        AllowsTransparency="True">
+
+    <Window.Resources>
+        <Style TargetType="Border">
+            <Setter Property="CornerRadius" Value="10"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="130"/>
+            <RowDefinition/>
+            <RowDefinition Height="70"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Image -->
+        <Image Source="/Resources/Images/error.png"
+               Margin="0,20,0,0"
+               Height="100"/>
+
+        <!-- Warning Message -->
+        <Border Grid.Row="1"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch">
+            <TextBlock HorizontalAlignment="Stretch"
+                       VerticalAlignment="Center"
+                       TextAlignment="Center"
+                       FontFamily="/Resources/Fonts/#Baloo Bhaijaan 2"
+                       FontSize="11"
+                       FontWeight="DemiBold">
+                
+                We couldn't establish connection with the server! 
+                <LineBreak/>
+                <LineBreak/>
+                This could happen if your application uses a
+                <LineBreak/>
+                different (or older) authentication key for this
+                <LineBreak/>
+                server or there is a network error
+                <LineBreak/>
+                on your or the server's side.
+                <LineBreak/>
+                Please try again or close the application!
+            </TextBlock>
+            
+        </Border>
+
+        <!-- Button -->
+        <Button x:Name="Reconnect"
+                Grid.Row="2"
+                Height="50"
+                Width="200"
+                Margin="0,0,0,0"
+                Content="RECONNECT"
+                FontSize="20"
+                Style="{StaticResource LoginButtonTheme}"/>
+    </Grid>
+</Window>

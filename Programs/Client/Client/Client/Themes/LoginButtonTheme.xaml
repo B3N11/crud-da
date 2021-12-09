@@ -13,13 +13,13 @@
                                 Background="#05b0ff"
                                 CornerRadius="10">
                             <TextBlock x:Name="button_text"
-                                       Text="{TemplateBinding Property=Name}"                                       
+                                       Text="{TemplateBinding Content}"                                       
                                        VerticalAlignment="Center"
                                        HorizontalAlignment="Center"
-                                       FontSize="30"
+                                       FontSize="{TemplateBinding FontSize}"
                                        Foreground="#bbdff0"
                                        FontWeight="Bold"
-                                       FontFamily="/Fonts/#Baloo Bhaijaan 2"
+                                       FontFamily="Resources/Fonts/#Baloo Bhaijaan 2"
                                        Margin="0,5,0,0"/>
                         </Border>
 

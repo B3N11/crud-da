@@ -4,10 +4,13 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <RootNamespace>CarCRUD</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Fonts\BalooBhaijaan2-VariableFont_wght.ttf" />
+    <None Remove="Resources\Fonts\BalooBhaijaan2-VariableFont_wght.ttf" />
+    <None Remove="Resources\Images\error.png" />
+    <None Remove="Resources\Images\logo_2.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,7 +24,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Fonts\BalooBhaijaan2-VariableFont_wght.ttf" />
+    <Resource Include="Resources\Fonts\BalooBhaijaan2-VariableFont_wght.ttf" />
+    <Resource Include="Resources\Images\error.png" />
+    <Resource Include="Resources\Images\logo_2.png" />
   </ItemGroup>
 
 </Project>

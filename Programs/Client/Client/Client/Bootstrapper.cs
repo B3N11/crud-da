@@ -1,8 +1,8 @@
 ﻿using Caliburn.Micro;
 using System.Windows;
-using Client.ViewModels;
+using CarCRUD.ViewModels;
 
-namespace Client
+namespace CarCRUD
 {
     public class Bootstrapper : BootstrapperBase
     {
