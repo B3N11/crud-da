@@ -1,0 +1,20 @@
+﻿Client
+1.0.0.0
+
+winexe
+C#
+.cs
+D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\
+CarCRUD
+none
+false
+TRACE;DEBUG;NET;NET5_0;NETCOREAPP
+D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\App.xaml
+13924489223
+
+37-1493913555
+218-1412540779
+Themes\LoginButtonTheme.xaml;Themes\TextboxTheme.xaml;Themes\TitleTheme.xaml;Themes\WindowControlButtonTheme.xaml;Views\ActionView.xaml;Views\AdminactionView.xaml;Views\CarsView.xaml;Views\DisconnectedView.xaml;Views\HomeView.xaml;Views\LoginView.xaml;Views\MainView.xaml;Views\ProfileView.xaml;Views\RegistrationView.xaml;
+
+False
+

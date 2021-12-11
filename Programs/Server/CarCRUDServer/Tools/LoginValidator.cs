@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Linq;
 using CarCRUD.DataModels;
+using CarCRUD.User;
 
 namespace CarCRUD.ServerHandle
 {
@@ -42,6 +43,10 @@ namespace CarCRUD.ServerHandle
             string hashedUsername = HashData(_message.username, true);
             string hashedPassword = HashData(_message.password, true);
 
+            //Check if already logged in
+            if (UserController.IsUserLoggedIn(hashedUsername))
+                return new LoginValidationResult(LoginAttemptResult.AlreadyLoggedIn);
+
             //Check Credentials
             UserData userData = await CheckUsername(hashedUsername);
             if (userData == null) return new LoginValidationResult(LoginAttemptResult.InvalidUsername);
@@ -79,7 +84,7 @@ namespace CarCRUD.ServerHandle
             return new LoginValidationResult(LoginAttemptResult.Success);
         }
 
-        private static LoginAttemptResult CheckPasswordFormat(string _password)
+        public static LoginAttemptResult CheckPasswordFormat(string _password)
         {
             //Special characters supported for passwords based on (https://docs.oracle.com/cd/E11223_01/doc.910/e11197/app_special_char.htm#MCMAD416)
             List<char> special = new char[]{ '@', '%', '+', '\\', '/', '\'', '!', '#', '$', '^', '?', ':', ',', '(', ')', '{', '}', '[', ']', '~', '-', '_'}.ToList();

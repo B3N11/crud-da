@@ -113,6 +113,16 @@ namespace CarCRUD.User
             try { _user.netClient.StopClient(); } catch { }     //Stop client (disconnect)
             try { users.Remove(_user); } catch { }      //Release instance for GC
         }
+
+        public static bool IsUserLoggedIn(string _username)
+        {
+            bool result = false;
+
+            try { result = users.Exists(u => u.userData?.username == _username); }
+            catch { }
+
+            return result;
+        }
         #endregion
 
         #region Messaging
@@ -167,12 +177,12 @@ namespace CarCRUD.User
             //Check call validity
             if (_message == null || _user == null) return;
             //Check if message can be accepted from client
-            if (_message.type != NetMessageType.KeyAuthentication && _user.status == UserStatus.PendingAuthentication) return;
+            if (_message.type != NetMessageType.KeyAuthenticationRequest && _user.status == UserStatus.PendingAuthentication) return;
 
             switch (_message.type)
             {
-                case NetMessageType.KeyAuthentication:      //Key Auth Message
-                    UserActionHandler.CheckAuthenticationKey(_message as KeyAuthenticationMessage, _user); break;
+                case NetMessageType.KeyAuthenticationRequest:      //Key Auth Message
+                    UserActionHandler.CheckAuthenticationKey(_message as KeyAuthenticationRequestMessage, _user); break;
 
                 case NetMessageType.LoginRequest:       //Login Reques Message
                     UserActionHandler.LoginRequestHandleAsync(_message as LoginRequestMessage, _user); break;
@@ -181,10 +191,10 @@ namespace CarCRUD.User
                     UserActionHandler.RegistrationHandle(_message as RegistrationRequestMessage, _user); break;
 
                 case NetMessageType.Logout:
-                    DropUser(_user); break;
+                    UserActionHandler.LogoutHandle(_user); break;
 
                 case NetMessageType.AccountDeleteRequest:
-                    UserActionHandler.AccountDeleteRequestHandle(_user); break;
+                    UserActionHandler.AccountDeleteRequestHandle((_message as AccountDeleteRequestMessage).result, _user); break;
 
                 case NetMessageType.CarBrandAddRequest:
                     UserActionHandler.CarBrandRequestHandle(_message as CarBrandAddRequestMessage, _user); break;

@@ -9,7 +9,6 @@ namespace CarCRUD.ViewModels
         #region Properties
         //Window
         private IWindowManager windowManager;
-        private HomeViewModel home;
 
         //Data
         private string connectionState = "Connecting...";
@@ -31,8 +30,7 @@ namespace CarCRUD.ViewModels
 
         protected override async void OnViewLoaded(object view)
         {
-            home = new HomeViewModel(this);
-            SetControl(home, true);
+            SetControl(new HomeViewModel(this), true);
             Client.Start(this);
         }
 
@@ -70,7 +68,7 @@ namespace CarCRUD.ViewModels
             ConnectionState = "Not Connected";
             var dvm = new DisconnectedViewModel(this);
             ShowWindow(dvm);
-            SetControl(home, true);
+            SetControl(new HomeViewModel(this), true);
         }        
 
         public void ClientConnecting()

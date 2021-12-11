@@ -1,0 +1,102 @@
+﻿<UserControl x:Class="CarCRUD.Views.ActionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CarCRUD.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="570" d:DesignWidth="1060">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0"
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Stretch"
+              Background="#212c61">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Fullname -->
+            <Border Grid.Column="0"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Center">
+                <TextBlock x:Name="FullName"
+                           FontSize="30"
+                           Foreground="Wheat"
+                           TextAlignment="Left"
+                           Margin="10,0,0,0"/>
+            </Border>
+
+            <!-- Time -->
+            <Border Grid.Column="1"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Center">
+                <TextBlock x:Name="Time"
+                           FontSize="30"
+                           Foreground="Wheat"
+                           TextAlignment="Center"
+                           Margin="10,0,0,0"/>
+            </Border>
+
+            <!-- Type -->
+            <Border Grid.Column="2"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Center">
+                <TextBlock x:Name="UserType"
+                           FontSize="30"
+                           Foreground="Wheat"
+                           TextAlignment="Right"
+                           Margin="10,0,0,0"/>
+            </Border>
+        </Grid>
+        
+        <!-- Menu and Content -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Buttons -->
+            <StackPanel Grid.Column="0"
+                        VerticalAlignment="Stretch"
+                        Orientation="Vertical"
+                        Background="#1c294a">
+
+                <Button x:Name="OpenCars"
+                        Content="Cars"
+                        FontSize="30"
+                        Width="170"
+                        Height="80"
+                        Margin="0,0,0,1"
+                        HorizontalAlignment="Right"/>
+                <Button x:Name="OpenProfile"
+                        Content="Profile"
+                        FontSize="30"
+                        Width="170"
+                        Height="80"
+                        Margin="0,0,0,1"
+                        HorizontalAlignment="Right"/>
+
+            </StackPanel>
+
+            <!-- Content -->
+            <Border Grid.Column="1"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Background="#41558a">
+                <ContentControl Grid.Column="1"
+                                x:Name="ActiveItem"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"/>
+            </Border>            
+        </Grid>
+    </Grid>
+</UserControl>

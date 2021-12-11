@@ -1,9 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CarCRUD.DataModels;
-using CarCRUD.Tools;
+﻿using CarCRUD.DataModels;
 
 namespace CarCRUD.Users
 {
@@ -13,6 +8,7 @@ namespace CarCRUD.Users
         public static bool RequestLogin(string _username, string _password)
         {
             //Check call validity
+            if (!UserController.CheckClientConnection()) return false;
             if (string.IsNullOrEmpty(_username) || string.IsNullOrEmpty(_password)) return false;
 
             LoginRequestMessage message = new LoginRequestMessage();
@@ -34,6 +30,7 @@ namespace CarCRUD.Users
         /// <returns></returns>
         public static bool RequestRegistration(string _username, string _passwordFirst, string _passwordSecond, string _fullname)
         {
+            if (!UserController.CheckClientConnection()) return false;
             if (string.IsNullOrEmpty(_username) || string.IsNullOrEmpty(_passwordFirst) || string.IsNullOrEmpty(_passwordSecond) || string.IsNullOrEmpty(_fullname))
                 return false;
 
@@ -51,24 +48,33 @@ namespace CarCRUD.Users
         /// <summary>
         /// Sends logout indicator message
         /// </summary>
-        public static void Logout()
+        public static void RequestLogout()
         {
-            NetMessage message = new NetMessage();
-            message.type = NetMessageType.Logout;
+            if (!UserController.CheckClientConnection()) return;
+            LogoutMessage message = new LogoutMessage();
 
             UserController.Send(message);
         }
         #endregion
 
         #region Requests
-        public static void AccountDeleteRequest()
+        public static void AccountDeleteRequest(bool delete = true)
         {
-            UserController.Send(new AccountDeleteRequestMessage());
+            if (!UserController.CheckClientConnection()) return;
+
+            AccountDeleteRequestMessage request = new AccountDeleteRequestMessage();
+            request.result = delete;
+
+            //Set locall
+            UserController.user.userData.accountDeleteRequested = delete;
+
+            //Send
+            UserController.Send(request);
         }
 
         public static void CarBrandRequest(string _brand)
         {
-            if (string.IsNullOrEmpty(_brand)) return;
+            if (!UserController.CheckClientConnection() || string.IsNullOrEmpty(_brand)) return;
 
             CarBrandAddRequestMessage message = new CarBrandAddRequestMessage();
             message.brandName = _brand;

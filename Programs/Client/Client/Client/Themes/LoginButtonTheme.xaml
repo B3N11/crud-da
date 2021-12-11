@@ -39,4 +39,44 @@
             <Setter Property="BorderThickness" Value="0"/>
         </Style.Setters>
     </Style>
+
+    <Style x:Key="LoginButtonInverseTheme" 
+           BasedOn="{StaticResource {x:Type Button}}"
+           TargetType="{x:Type Button}">
+        <Style.Setters>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="main_border"
+                                VerticalAlignment="Stretch"
+                                HorizontalAlignment="Stretch"
+                                Background="#bbdff0"
+                                CornerRadius="10">
+                            <TextBlock x:Name="button_text"
+                                       Text="{TemplateBinding Content}"                                       
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Center"
+                                       FontSize="{TemplateBinding FontSize}"
+                                       Foreground="#05b0ff"
+                                       FontWeight="Bold"
+                                       FontFamily="Resources/Fonts/#Baloo Bhaijaan 2"
+                                       Margin="0,5,0,0"/>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Background" TargetName="main_border" Value="#05b0ff"/>
+                                <Setter Property="Foreground" TargetName="button_text" Value="#bbdff0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Setter Property="Height" Value="80"/>
+            <Setter Property="Width" Value="200"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style.Setters>
+    </Style>
 </ResourceDictionary>

@@ -5,6 +5,7 @@
         PendingAuthentication,
         Authenticated,
         LoggedIn,
+        LoggedOut,
         Connected,
         Disconnected,
         Dropped
@@ -19,7 +20,8 @@
     public enum NetMessageType
     {
         //Connection
-        KeyAuthentication,
+        KeyAuthenticationRequest,
+        KeyAuthenticationResponse,
         LoginRequest,
         ReqistrationRequest,
         LoginResponse,
@@ -41,6 +43,7 @@
         InvalidPassword,     //Invalid login data
         LogginAttemptsMax,      //Client reached maximum login attempts
         AccountLocked,          //The desired account is inactive
+        AlreadyLoggedIn,
 
         //Registration
         InvalidPasswordFormat,      //Password does not meet requirements

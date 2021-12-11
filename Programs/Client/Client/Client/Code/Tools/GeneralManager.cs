@@ -73,8 +73,8 @@ namespace CarCRUD.Tools
 
             switch (result.type)
             {
-                case NetMessageType.KeyAuthentication:
-                    return Deserialize<KeyAuthenticationMessage>(_object);
+                case NetMessageType.KeyAuthenticationRequest:
+                    return Deserialize<KeyAuthenticationRequestMessage>(_object);
 
                 case NetMessageType.ReqistrationRequest:
                     return Deserialize<RegistrationRequestMessage>(_object);
@@ -84,6 +84,12 @@ namespace CarCRUD.Tools
 
                 case NetMessageType.AdminRegistrationRequest:
                     return Deserialize<AdminRegistrationRequestMessage>(_object);
+
+                case NetMessageType.LoginResponse:
+                    return Deserialize<LoginResponseMessage>(_object);
+
+                case NetMessageType.AccountDeleteResponse:
+                    return Deserialize<AccountDeleteResponseMessage>(_object);
             }
 
             return result;

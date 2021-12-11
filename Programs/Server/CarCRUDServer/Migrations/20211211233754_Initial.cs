@@ -45,15 +45,16 @@ namespace CarCRUD.Migrations
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    brandID = table.Column<int>(type: "int", nullable: true),
+                    brand = table.Column<int>(type: "int", nullable: false),
+                    brandDataID = table.Column<int>(type: "int", nullable: true),
                     name = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CarType", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_CarType_CarBrands_brandID",
-                        column: x => x.brandID,
+                        name: "FK_CarType_CarBrands_brandDataID",
+                        column: x => x.brandDataID,
                         principalTable: "CarBrands",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Restrict);
@@ -66,14 +67,15 @@ namespace CarCRUD.Migrations
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     brand = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    userID = table.Column<int>(type: "int", nullable: true)
+                    user = table.Column<int>(type: "int", nullable: false),
+                    userDataID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserRequests", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_UserRequests_Users_userID",
-                        column: x => x.userID,
+                        name: "FK_UserRequests_Users_userDataID",
+                        column: x => x.userDataID,
                         principalTable: "Users",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Restrict);
@@ -85,7 +87,9 @@ namespace CarCRUD.Migrations
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    carTypeID = table.Column<int>(type: "int", nullable: true),
+                    cartype = table.Column<int>(type: "int", nullable: false),
+                    carTypeDataID = table.Column<int>(type: "int", nullable: true),
+                    user = table.Column<int>(type: "int", nullable: false),
                     userDataID = table.Column<int>(type: "int", nullable: true),
                     year = table.Column<int>(type: "int", nullable: false),
                     color = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -95,8 +99,8 @@ namespace CarCRUD.Migrations
                 {
                     table.PrimaryKey("PK_FavouriteCars", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_FavouriteCars_CarType_carTypeID",
-                        column: x => x.carTypeID,
+                        name: "FK_FavouriteCars_CarType_carTypeDataID",
+                        column: x => x.carTypeDataID,
                         principalTable: "CarType",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Restrict);
@@ -114,34 +118,35 @@ namespace CarCRUD.Migrations
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    favouriteCarID = table.Column<int>(type: "int", nullable: true),
+                    favouriteCar = table.Column<int>(type: "int", nullable: false),
+                    favouriteCarDataID = table.Column<int>(type: "int", nullable: true),
                     image = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CarImages", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_CarImages_FavouriteCars_favouriteCarID",
-                        column: x => x.favouriteCarID,
+                        name: "FK_CarImages_FavouriteCars_favouriteCarDataID",
+                        column: x => x.favouriteCarDataID,
                         principalTable: "FavouriteCars",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_CarImages_favouriteCarID",
+                name: "IX_CarImages_favouriteCarDataID",
                 table: "CarImages",
-                column: "favouriteCarID");
+                column: "favouriteCarDataID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CarType_brandID",
+                name: "IX_CarType_brandDataID",
                 table: "CarType",
-                column: "brandID");
+                column: "brandDataID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FavouriteCars_carTypeID",
+                name: "IX_FavouriteCars_carTypeDataID",
                 table: "FavouriteCars",
-                column: "carTypeID");
+                column: "carTypeDataID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FavouriteCars_userDataID",
@@ -149,9 +154,9 @@ namespace CarCRUD.Migrations
                 column: "userDataID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserRequests_userID",
+                name: "IX_UserRequests_userDataID",
                 table: "UserRequests",
-                column: "userID");
+                column: "userDataID");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

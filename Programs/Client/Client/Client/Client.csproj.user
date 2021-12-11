@@ -7,6 +7,15 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Views\ActionView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\AdminactionView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\CarsView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\DisconnectedView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -17,6 +26,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="Views\MainView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\ProfileView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="Views\RegistrationView.xaml.cs">
@@ -36,6 +48,15 @@
     <Page Update="Themes\WindowControlButtonTheme.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Update="Views\ActionView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\AdminactionView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\CarsView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Views\DisconnectedView.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -46,6 +67,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\MainView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\ProfileView.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\RegistrationView.xaml">

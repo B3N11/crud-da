@@ -83,3 +83,11 @@ D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-window
 D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Views\RegistrationView.baml
 D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Themes\TextboxTheme.baml
 D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Themes\TitleTheme.baml
+D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Views\ActionView.g.cs
+D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Views\ActionView.baml
+D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Views\ProfileView.g.cs
+D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Views\ProfileView.baml
+D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Views\CarsView.g.cs
+D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Views\CarsView.baml
+D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Views\AdminactionView.g.cs
+D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Views\AdminactionView.baml

@@ -41,7 +41,10 @@ namespace CarCRUD.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("carTypeID")
+                    b.Property<int?>("carTypeDataID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("cartype")
                         .HasColumnType("int");
 
                     b.Property<string>("color")
@@ -49,6 +52,9 @@ namespace CarCRUD.Migrations
 
                     b.Property<string>("fuel")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("user")
+                        .HasColumnType("int");
 
                     b.Property<int?>("userDataID")
                         .HasColumnType("int");
@@ -58,7 +64,7 @@ namespace CarCRUD.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("carTypeID");
+                    b.HasIndex("carTypeDataID");
 
                     b.HasIndex("userDataID");
 
@@ -72,7 +78,10 @@ namespace CarCRUD.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("favouriteCarID")
+                    b.Property<int>("favouriteCar")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("favouriteCarDataID")
                         .HasColumnType("int");
 
                     b.Property<byte[]>("image")
@@ -80,7 +89,7 @@ namespace CarCRUD.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("favouriteCarID");
+                    b.HasIndex("favouriteCarDataID");
 
                     b.ToTable("CarImages");
                 });
@@ -92,7 +101,10 @@ namespace CarCRUD.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("brandID")
+                    b.Property<int>("brand")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("brandDataID")
                         .HasColumnType("int");
 
                     b.Property<string>("name")
@@ -100,7 +112,7 @@ namespace CarCRUD.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("brandID");
+                    b.HasIndex("brandDataID");
 
                     b.ToTable("CarType");
                 });
@@ -115,12 +127,15 @@ namespace CarCRUD.Migrations
                     b.Property<string>("brand")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("userID")
+                    b.Property<int>("user")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("userDataID")
                         .HasColumnType("int");
 
                     b.HasKey("ID");
 
-                    b.HasIndex("userID");
+                    b.HasIndex("userDataID");
 
                     b.ToTable("UserRequests");
                 });
@@ -160,44 +175,44 @@ namespace CarCRUD.Migrations
 
             modelBuilder.Entity("CarCRUD.DataModels.CarFavourite", b =>
                 {
-                    b.HasOne("CarCRUD.DataModels.CarType", "carType")
+                    b.HasOne("CarCRUD.DataModels.CarType", "carTypeData")
                         .WithMany()
-                        .HasForeignKey("carTypeID");
+                        .HasForeignKey("carTypeDataID");
 
                     b.HasOne("CarCRUD.DataModels.UserData", "userData")
                         .WithMany()
                         .HasForeignKey("userDataID");
 
-                    b.Navigation("carType");
+                    b.Navigation("carTypeData");
 
                     b.Navigation("userData");
                 });
 
             modelBuilder.Entity("CarCRUD.DataModels.CarImage", b =>
                 {
-                    b.HasOne("CarCRUD.DataModels.CarFavourite", "favouriteCar")
+                    b.HasOne("CarCRUD.DataModels.CarFavourite", "favouriteCarData")
                         .WithMany()
-                        .HasForeignKey("favouriteCarID");
+                        .HasForeignKey("favouriteCarDataID");
 
-                    b.Navigation("favouriteCar");
+                    b.Navigation("favouriteCarData");
                 });
 
             modelBuilder.Entity("CarCRUD.DataModels.CarType", b =>
                 {
-                    b.HasOne("CarCRUD.DataModels.CarBrand", "brand")
+                    b.HasOne("CarCRUD.DataModels.CarBrand", "brandData")
                         .WithMany()
-                        .HasForeignKey("brandID");
+                        .HasForeignKey("brandDataID");
 
-                    b.Navigation("brand");
+                    b.Navigation("brandData");
                 });
 
             modelBuilder.Entity("CarCRUD.DataModels.UserBrandRequest", b =>
                 {
-                    b.HasOne("CarCRUD.DataModels.UserData", "user")
+                    b.HasOne("CarCRUD.DataModels.UserData", "userData")
                         .WithMany()
-                        .HasForeignKey("userID");
+                        .HasForeignKey("userDataID");
 
-                    b.Navigation("user");
+                    b.Navigation("userData");
                 });
 #pragma warning restore 612, 618
         }

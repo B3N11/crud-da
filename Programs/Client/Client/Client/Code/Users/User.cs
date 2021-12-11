@@ -14,13 +14,11 @@ namespace CarCRUD.Users
         public string userID = string.Empty;
         public UserStatus status;
         public UserData userData;
+        public UserResponseData responseData;
+        public bool canRequest = true;      //Enables/disables UI
 
         //Networking
         public NetClient netClient;
-
-        //Login
-        public string lastUsername = string.Empty;
-        public int loginAttempts = 0;
 
         //Unique ID required to create a user
         public User(string _id) { userID = _id; }

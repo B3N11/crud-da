@@ -52,11 +52,6 @@ namespace CarCRUD
         {
             UserController.Connect();
         }
-
-        public static void LogOut()
-        {
-
-        }
         #endregion
     }
 }

@@ -10,7 +10,7 @@ namespace CarCRUD.User
     public class UserActionHandler
     {
         #region Connection And Login
-        public static void CheckAuthenticationKey(KeyAuthenticationMessage _message, User _user)
+        public static void CheckAuthenticationKey(KeyAuthenticationRequestMessage _message, User _user)
         {
             //Check call validity
             if (_message == null || _user == null) return;
@@ -18,14 +18,19 @@ namespace CarCRUD.User
             //Check key match
             bool result = Server.CheckKey(_message.key);
 
+            //Send response
+            KeyAuthenticationResponseMessage response = new KeyAuthenticationResponseMessage();
+            response.result = result;
+            UserController.Send(response, _user);
+
             //Authentication was successfull
-            if (result) _user.status = UserStatus.Authenticated;
+            if (result) _user.status = UserStatus.Authenticated;            
 
             //Authentication failed
             else UserController.DropUser(_user);
 
             //Log state if enabled
-            if (Server.loggingEnabled) Logger.LogState(_user);
+            if (Server.loggingEnabled) Logger.LogState(_user);            
         }
 
         public static async void LoginRequestHandleAsync(LoginRequestMessage _message, User _user)
@@ -36,15 +41,11 @@ namespace CarCRUD.User
             //Check credentials and create response message
             LoginValidationResult result = await LoginValidator.ValidateLoginAsync(_message);
             LoginResponseMessage response = new LoginResponseMessage();
-            response.type = NetMessageType.LoginResponse;
             response.result = result.result;
 
             //Set invalid password incrementer
             if(result.result == LoginAttemptResult.InvalidPassword)
-            {
                 await SetLoginTryAsync(result.userData.username);
-                response.loginTryLeft = (5 - result.userData.passwordAttempts);
-            }
 
             //Uppon successfull login
             if (result.result == LoginAttemptResult.Success)
@@ -55,14 +56,56 @@ namespace CarCRUD.User
                 //Link UserData to User client
                 _user.userData = result.userData;
 
-                //Send back user information                
-                UserData sendUser = GeneralManager.EncodeUser(_user.userData, false);
-                sendUser.password = "N/A";      //Dont send password even to admin
-                response.user = sendUser;
+                //Set response data
+                response = await SetupLoginResponse(_user, result.result);
+                response.result = result.result;
             }
 
             //Send response
             UserController.Send(response, _user);
+        }
+
+        private static async Task<LoginResponseMessage> SetupLoginResponse( User _user, LoginAttemptResult _result)
+        {
+            if (_user == null) return null;
+
+            LoginResponseMessage response = new LoginResponseMessage();
+
+            //Set user response information            
+            UserData sendUser = GeneralManager.EncodeUser(_user.userData, false);
+
+            //Set user specific response data
+            if (_user.userData.type != UserType.Admin) //Dont send password if not admin requested
+                sendUser.password = "N/A";
+            response.user = sendUser;
+            response.favourites = await DBController.GetFavouritesAsync(_user.userData.ID);
+
+            //Set response data
+            response.userResponseData = await GetGeneralResponseDataAsync();
+            if (_user.userData.type == UserType.Admin)
+                response.adminResponseData = await GetAdminResponseDataAsync();
+
+            return response;
+        }
+
+        private static async Task<GeneralResponseData> GetGeneralResponseDataAsync()
+        {
+            GeneralResponseData result = new GeneralResponseData();
+
+            result.carBrands = await DBController.GetCarBrandsAsync();
+            result.carTypes = await DBController.GetCarTypesAsync("*");
+
+            return result;
+        }
+
+        private static async Task<AdminResponseData> GetAdminResponseDataAsync()
+        {
+            AdminResponseData result = new AdminResponseData();
+
+            result.users = await DBController.GetAllUserAsync();
+            result.requests = await DBController.GetBrandRequestsByUsernameAsync("*");
+
+            return result;
         }
 
         public static async void RegistrationHandle(RegistrationRequestMessage _message, User _user)
@@ -104,15 +147,25 @@ namespace CarCRUD.User
             response.type = NetMessageType.LoginResponse;
             response.result = result.result;
         }
+
+        public static void LogoutHandle(User _user)
+        {
+            if (_user == null) return;
+
+            _user.userData = null;
+            _user.status = UserStatus.LoggedOut;
+
+            if (Server.loggingEnabled) Logger.LogState(_user);
+        }
         #endregion
 
         #region User Requests
-        public static async void AccountDeleteRequestHandle(User _user)
+        public static async void AccountDeleteRequestHandle(bool delete, User _user)
         {
             //Check call validity and if requested before
-            if (_user == null || _user.userData == null || _user.userData.accountDeleteRequested) return;
+            if (_user == null || _user.userData == null) return;
 
-            bool result = await SetDeleteRequest(_user.userData);
+            bool result = await SetDeleteRequest(delete, _user.userData);
 
             AccountDeleteResponseMessage response = new AccountDeleteResponseMessage();
             response.result = result;
@@ -120,13 +173,13 @@ namespace CarCRUD.User
             UserController.Send(response, _user);
         }
 
-        private static async Task<bool> SetDeleteRequest(UserData _user)
+        private static async Task<bool> SetDeleteRequest(bool delete, UserData _user)
         {
             if (_user == null) return false;
 
-            _user.accountDeleteRequested = true;
+            _user.accountDeleteRequested = delete;
 
-            bool result = await DBController.SetUserData(_user, _user.ID);
+            bool result = await DBController.SetUserDataAsync(_user, _user.ID);
             return result;
         }
 
@@ -184,7 +237,7 @@ namespace CarCRUD.User
                 user.active = false;
 
             //Save
-            await DBController.SetUserData(user, user.ID);
+            await DBController.SetUserDataAsync(user, user.ID);
             return true;
         }
         #endregion
@@ -214,7 +267,7 @@ namespace CarCRUD.User
             else newUser.type = UserType.User;
 
             //Save into db
-            await DBController.CreateUser(newUser);
+            await DBController.CreateUserAsync(newUser);
             return newUser;
         }
         #endregion

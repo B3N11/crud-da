@@ -18,6 +18,7 @@ namespace CarCRUD.DataModels
     {
         public int ID { get; set; }
         public string brand { get; set; }
+        public int userID { get; set; }
         public UserData user { get; set; }
     }
 
@@ -30,6 +31,7 @@ namespace CarCRUD.DataModels
     public class CarType
     {
         public int ID { get; set; }
+        public int brandID { get; set; }
         public CarBrand brand { get; set; }
         public string name { get; set; }
     }
@@ -37,7 +39,9 @@ namespace CarCRUD.DataModels
     public class CarFavourite
     {
         public int ID { get; set; }
+        public int cartypeID { get; set; }
         public CarType carType { get; set; }
+        public int userID { get; set; }
         public UserData userData { get; set; }
         public int year { get; set; }
         public string color { get; set; }
@@ -47,6 +51,7 @@ namespace CarCRUD.DataModels
     public class CarImage
     {
         public int ID { get; set; }
+        public int favouriteCarID { get; set; }
         public CarFavourite favouriteCar { get; set; }
         public byte[] image { get; set; }
     }
