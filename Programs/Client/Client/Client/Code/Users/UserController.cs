@@ -3,6 +3,7 @@ using CarCRUD.Networking;
 using CarCRUD.DataModels;
 using CarCRUD.Tools;
 using System.Text;
+using System.Collections.Generic;
 
 namespace CarCRUD.Users
 {
@@ -141,17 +142,19 @@ namespace CarCRUD.Users
             user.canRequest = true;
         }
 
-        public static void SetUserData(UserData _data, UserResponseData _responseData)
+        public static void SetUserData(UserData _data, GeneralResponseData _responseData, List<CarFavourite> _favourites, AdminResponseData _adminResponseData = null)
         {
             user.userData = _data;
-            user.responseData = _responseData;
+            user.userResponseData = _responseData;
+            user.adminResponseData = _adminResponseData;
+            user.favourites = _favourites;
         }
 
         public static void Logout(bool breakConnection = false)
         {
             if (!CheckClientConnection()) return;
 
-            SetUserData(null, null);
+            SetUserData(null, null, null, null);
             UserActionHandler.RequestLogout();
 
             //Recreates user if disconnectint from server was requested
@@ -174,9 +177,6 @@ namespace CarCRUD.Users
             {
                 case NetMessageType.LoginResponse:       //Login Reques Message
                     ResponseHandler.LoginResponseHandle(_message as LoginResponseMessage); break;
-
-                case NetMessageType.AccountDeleteResponse:
-                    ResponseHandler.AccountDeleteResponse(_message as AccountDeleteResponseMessage); break;
             }
 
             //Enable new request

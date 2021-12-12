@@ -51,7 +51,7 @@ namespace CarCRUD.Tools
         }
         #endregion
 
-        #region Casting & Serializing
+        #region Casting
         public static NetClient CastNetClient(object _object)
         {
             NetClient result = null;
@@ -76,7 +76,7 @@ namespace CarCRUD.Tools
                 case NetMessageType.KeyAuthenticationRequest:
                     return Deserialize<KeyAuthenticationRequestMessage>(_object);
 
-                case NetMessageType.ReqistrationRequest:
+                case NetMessageType.RegistrationRequest:
                     return Deserialize<RegistrationRequestMessage>(_object);
 
                 case NetMessageType.LoginRequest:
@@ -88,8 +88,8 @@ namespace CarCRUD.Tools
                 case NetMessageType.LoginResponse:
                     return Deserialize<LoginResponseMessage>(_object);
 
-                case NetMessageType.AccountDeleteResponse:
-                    return Deserialize<AccountDeleteResponseMessage>(_object);
+                case NetMessageType.UserRequest:
+                    return Deserialize<UserRequestMesssage>(_object);
             }
 
             return result;
@@ -188,16 +188,48 @@ namespace CarCRUD.Tools
             if (_user == null) return null;
 
             UserData result = new UserData();
-            result.username = Base64(_user.username, _encode);
-            result.password = Base64(_user.password, _encode);
+            result.username = _encode ? HashData(_user.username) : _user.username;
+            result.password = _encode ? HashData(_user.password) : _user.password;
             result.fullname = Encrypt(_user.fullname, _encode);
             result.active = _user.active;
             result.passwordAttempts = _user.passwordAttempts;
             result.ID = _user.ID;
-            result.accountDeleteRequested = _user.accountDeleteRequested;
             result.type = _user.type;
 
             return result;
+        }
+        #endregion
+
+        #region Input Handling
+        public static string GetInput(string _message = null, string _condition = null, int _tries = 1)
+        {
+            string result = null;
+            int tries = _tries;
+            while (true)
+            {
+                //If out of tries
+                if (tries <= 0) return result;
+
+                //Display message before every input
+                if (_message != null)
+                    Console.WriteLine(_message);
+
+                //Decrease tries
+                tries--;
+
+                //Get Input
+                result = Console.ReadLine();
+
+                //If result is empty
+                if (string.IsNullOrWhiteSpace(result) || string.IsNullOrEmpty(result))
+                    continue;
+
+                //If result needs to match something
+                if (_condition != null && result != _condition)
+                    continue;
+
+                return result;
+            }
         }
         #endregion
     }

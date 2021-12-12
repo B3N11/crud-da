@@ -16,17 +16,10 @@ namespace CarCRUD
 
             //Set User data
             if (_message.result == LoginAttemptResult.Success)
-                UserController.SetUserData(_message.user, _message.responseData);
+                UserController.SetUserData(_message.user, _message.userResponseData, _message.favourites, _message.adminResponseData);
 
             //Raise event
             UserController.OnLoginResultedEvent?.Invoke(_message.result, _message.loginTryLeft);
-        }
-
-        public static void AccountDeleteResponse(AccountDeleteResponseMessage _message)
-        {
-            if (_message == null) return;
-
-            UserController.user.userData.accountDeleteRequested = _message.result;
         }
     }
 }

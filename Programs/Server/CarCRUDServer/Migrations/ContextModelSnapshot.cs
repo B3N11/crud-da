@@ -117,38 +117,12 @@ namespace CarCRUD.Migrations
                     b.ToTable("CarType");
                 });
 
-            modelBuilder.Entity("CarCRUD.DataModels.UserBrandRequest", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("brand")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("user")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("userDataID")
-                        .HasColumnType("int");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("userDataID");
-
-                    b.ToTable("UserRequests");
-                });
-
             modelBuilder.Entity("CarCRUD.DataModels.UserData", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<bool>("accountDeleteRequested")
-                        .HasColumnType("bit");
 
                     b.Property<bool>("active")
                         .HasColumnType("bit");
@@ -171,6 +145,32 @@ namespace CarCRUD.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("CarCRUD.DataModels.UserRequest", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("brandAttach")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("type")
+                        .HasColumnType("int");
+
+                    b.Property<int>("user")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("userDataID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("userDataID");
+
+                    b.ToTable("UserRequests");
                 });
 
             modelBuilder.Entity("CarCRUD.DataModels.CarFavourite", b =>
@@ -206,7 +206,7 @@ namespace CarCRUD.Migrations
                     b.Navigation("brandData");
                 });
 
-            modelBuilder.Entity("CarCRUD.DataModels.UserBrandRequest", b =>
+            modelBuilder.Entity("CarCRUD.DataModels.UserRequest", b =>
                 {
                     b.HasOne("CarCRUD.DataModels.UserData", "userData")
                         .WithMany()

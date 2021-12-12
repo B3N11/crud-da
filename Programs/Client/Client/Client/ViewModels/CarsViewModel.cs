@@ -21,7 +21,7 @@ namespace CarCRUD.ViewModels
             }
             set
             {
-                cars = UserController.user.responseData.favourites;
+                cars = UserController.user.favourites;
                 NotifyOfPropertyChange(() => cars);
             }
         }

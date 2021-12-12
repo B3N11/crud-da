@@ -31,8 +31,7 @@ namespace CarCRUD.Migrations
                     fullname = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     passwordAttempts = table.Column<int>(type: "int", nullable: false),
                     type = table.Column<int>(type: "int", nullable: false),
-                    active = table.Column<bool>(type: "bit", nullable: false),
-                    accountDeleteRequested = table.Column<bool>(type: "bit", nullable: false)
+                    active = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -66,7 +65,8 @@ namespace CarCRUD.Migrations
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    brand = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    type = table.Column<int>(type: "int", nullable: false),
+                    brandAttach = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     user = table.Column<int>(type: "int", nullable: false),
                     userDataID = table.Column<int>(type: "int", nullable: true)
                 },

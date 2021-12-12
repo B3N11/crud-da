@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using CarCRUD.Networking;
 using CarCRUD.DataModels;
+using System.Collections.Generic;
 
 namespace CarCRUD.Users
 {
@@ -14,7 +15,9 @@ namespace CarCRUD.Users
         public string userID = string.Empty;
         public UserStatus status;
         public UserData userData;
-        public UserResponseData responseData;
+        public GeneralResponseData userResponseData;
+        public AdminResponseData adminResponseData;
+        public List<CarFavourite> favourites;
         public bool canRequest = true;      //Enables/disables UI
 
         //Networking
