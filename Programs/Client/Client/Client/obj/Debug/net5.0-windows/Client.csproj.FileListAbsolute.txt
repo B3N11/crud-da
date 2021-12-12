@@ -91,3 +91,5 @@ D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-window
 D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Views\CarsView.baml
 D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Views\AdminactionView.g.cs
 D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Views\AdminactionView.baml
+D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Views\UsersView.g.cs
+D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Views\UsersView.baml

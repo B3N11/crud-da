@@ -6,6 +6,8 @@ using CarCRUD.Networking;
 using CarCRUD.DataModels;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace CarCRUD.Tools
 {
@@ -51,7 +53,7 @@ namespace CarCRUD.Tools
         }
         #endregion
 
-        #region Casting
+        #region Casting & Copying
         public static NetClient CastNetClient(object _object)
         {
             NetClient result = null;
@@ -90,6 +92,28 @@ namespace CarCRUD.Tools
 
                 case NetMessageType.UserRequest:
                     return Deserialize<UserRequestMesssage>(_object);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Clears(deep copies) all the elements if a list and returns them as a cleared list. Paramters depend on the IDeepCopyable type you want to get.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="_list"></param>
+        /// <returns>Returns null if T does not inherit from IDeepCopyable interface.</returns>
+        public static List<T> DeepCopyList<T>(List<T> _list, object[] _parameters)
+        {
+            //If T doesnt iherit from IDeepCopyable
+            if (!typeof(T).GetTypeInfo().IsAssignableFrom(typeof(IDeepCopyable<T>).Ge‌​tTypeInfo()))
+                return null;
+
+            List<T> result = new List<T>();
+            foreach (IDeepCopyable<T> item in _list)
+            {
+                T cleared = item.DeepCopy(_parameters);
+                result.Add(cleared);
             }
 
             return result;

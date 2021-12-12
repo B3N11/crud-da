@@ -53,7 +53,7 @@ namespace CarCRUD.Users
             if (!UserController.CheckClientConnection()) return;
             LogoutMessage message = new LogoutMessage();
 
-            UserController.Send(message);
+            UserController.Send(message, false);
         }
         #endregion
 

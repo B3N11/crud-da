@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CarCRUD.DataModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace CarCRUD.DataBase
 {
@@ -107,6 +108,23 @@ namespace CarCRUD.DataBase
 
             return result;
         }
+
+        public static async Task<UserData> GetUserByIDAsync(int _ID)
+        {
+            UserData user = null;
+            user = await Task.Run(() => GetUserByID(_ID));
+
+            return user;
+        }
+
+        private static async Task<UserData> GetUserByID(int ID)
+        {
+            UserData user = null;
+            try { user = database.Users.First(u => u.ID == ID); }
+            catch { }
+
+            return user;
+        }
         #endregion
 
         #region Car Query
@@ -124,7 +142,7 @@ namespace CarCRUD.DataBase
             return result;
         }
 
-        private static async Task<List<CarBrand>> GetCarBrands()
+        private static List<CarBrand> GetCarBrands()
         {
             List<CarBrand> result = null;
             try { result = database.CarBrands.Where(c => true).ToList(); }
@@ -140,18 +158,12 @@ namespace CarCRUD.DataBase
         /// </summary>
         /// <param name="_carBrand"></param>
         /// <returns></returns>
-        public static async Task<List<CarType>> GetCarTypesAsync(string _carBrand, bool _withoutAdditionalData = true)
+        public static async Task<List<CarType>> GetCarTypesAsync(string _carBrand)
         {
             if (string.IsNullOrEmpty(_carBrand)) return null;
 
             List<CarType> result = null;
             result = await Task.Run(() => GetCarTypes(_carBrand));
-
-            if (_withoutAdditionalData) result.ForEach(t =>
-            {
-                t.brand = t.brandData.ID;
-                t.brandData = null;
-            });
 
             return result;
         }
@@ -183,21 +195,12 @@ namespace CarCRUD.DataBase
         /// </summary>
         /// <param name="_userID"></param>
         /// <returns></returns>
-        public static async Task<List<CarFavourite>> GetFavouritesAsync(int _userID, bool _withoutAdditionalData = true)
+        public static async Task<List<CarFavourite>> GetFavouritesAsync(int _userID)
         {
             if (_userID < 1) return null;
 
             List<CarFavourite> result = null;
             result = await Task.Run(() => GetFavourites(_userID));
-
-            if (_withoutAdditionalData) result.ForEach(c =>
-            {
-                c.user = c.userData.ID;
-                c.userData = null;
-
-                c.cartype = c.carTypeData.ID;
-                c.carTypeData = null;
-            });
 
             return result;
         }
@@ -221,16 +224,10 @@ namespace CarCRUD.DataBase
         /// <param name="_username"></param>
         /// <param name="_withoutAdditionalData"></param>
         /// <returns></returns>
-        public static async Task<List<UserRequest>> GetRequestsByUsernameAsync(string _username, bool _withoutAdditionalData = true)
+        public static async Task<List<UserRequest>> GetRequestsByUsernameAsync(string _username)
         {
             List<UserRequest> result = null;
             result = await Task.Run(() => GerRequestsByUsername(_username));
-
-            if (_withoutAdditionalData) result.ForEach(r =>
-            {
-                r.user = r.userData.ID;
-                r.userData = null;
-            });
 
             return result;
         }
@@ -240,8 +237,8 @@ namespace CarCRUD.DataBase
             List<UserRequest> result = null;
 
             if(_username == "*")
-                try { result = database.UserRequests.Where(r => true).ToList(); } catch { }
-            else try { result = database.UserRequests.Where(r => r.userData.username == _username).ToList(); } catch { }
+                try { result = database.UserRequests.Include(r => r.userData).ToList(); } catch { }
+            else try { result = database.UserRequests.Include(r => r.userData).Where(r => r.userData.username == _username).ToList(); } catch { }
 
             return result;
         }
@@ -258,34 +255,33 @@ namespace CarCRUD.DataBase
             //Check call validtiy
             if (_user == null || !initialized) return false;
 
-            await Task.Run(() => database.Users.Add(_user));
+            bool result = await Task.Run(() => CreateUser(_user));
+
+            return result;
+        }
+
+        private static async Task<bool> CreateUser(UserData _user)
+        {
+            try { database.Users.Add(_user); }
+            catch { return false; }
 
             await database.SaveChangesAsync();
             return true;
         }
 
-        public static async Task<bool> SetUserDataAsync(UserData _userData, int ID)
+        public static async Task<bool> SetUserDataAsync(UserData _userData, int _ID)
         {
             if (_userData == null) return false;
 
             UserData user = null;
-            user = await Task.Run(() => SetUserData(ID));
+            user = await GetUserByIDAsync(_ID);
             if (user == null) return false;
 
             user = _userData;
-            user.ID = ID;
+            user.ID = _ID;
 
             await database.SaveChangesAsync();
             return true;
-        }
-
-        private static async Task<UserData> SetUserData(int ID)
-        {
-            UserData user = null;
-            try { user = await Task.Run(() => database.Users.First(u => u.ID == ID)); }
-            catch { }
-
-            return user;
         }
 
         public static async Task<bool> CreateAccountDeleteRequestAsync(string _username)

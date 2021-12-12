@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET5_0;NETCOREAPP
 D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\App.xaml
-13924489223
+14378580779
 
-35-1873851522
+37-1311123652
 218-1412540779
-Themes\LoginButtonTheme.xaml;Themes\TextboxTheme.xaml;Themes\TitleTheme.xaml;Themes\WindowControlButtonTheme.xaml;Views\ActionView.xaml;Views\AdminactionView.xaml;Views\CarsView.xaml;Views\DisconnectedView.xaml;Views\HomeView.xaml;Views\LoginView.xaml;Views\MainView.xaml;Views\ProfileView.xaml;Views\RegistrationView.xaml;
+Themes\LoginButtonTheme.xaml;Themes\TextboxTheme.xaml;Themes\TitleTheme.xaml;Themes\WindowControlButtonTheme.xaml;Views\ActionView.xaml;Views\AdminactionView.xaml;Views\CarsView.xaml;Views\DisconnectedView.xaml;Views\HomeView.xaml;Views\LoginView.xaml;Views\MainView.xaml;Views\ProfileView.xaml;Views\RegistrationView.xaml;Views\UsersView.xaml;
 
 False
 

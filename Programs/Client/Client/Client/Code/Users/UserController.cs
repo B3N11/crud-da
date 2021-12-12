@@ -84,7 +84,7 @@ namespace CarCRUD.Users
             message.key = Client.key;
 
             //Send
-            Send(message);
+            Send(message, false);
         }
         #endregion
 
@@ -108,7 +108,7 @@ namespace CarCRUD.Users
             HandleMessage(message);
         }
 
-        public static void Send<T>(T _object)
+        public static void Send<T>(T _object, bool _waitforResponse = true)
         {
             //Check connection
             if (_object == null || !CheckClientConnection()) return;
@@ -120,7 +120,8 @@ namespace CarCRUD.Users
             //Send
             byte[] data = Encoding.UTF8.GetBytes(message);
             user.Send(data);
-            user.canRequest = false;
+            //If needed, dont let anything happen until the response arrived
+            user.canRequest = !_waitforResponse;
         }
         #endregion
 

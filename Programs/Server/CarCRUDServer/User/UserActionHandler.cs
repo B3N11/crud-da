@@ -35,6 +35,7 @@ namespace CarCRUD.User
             if (Server.loggingEnabled) Logger.LogState(_user);            
         }
 
+        #region Login
         public static async void LoginRequestHandleAsync(LoginRequestMessage _message, User _user)
         {
             //Check call validity
@@ -46,8 +47,10 @@ namespace CarCRUD.User
             response.result = result.result;
 
             //Set invalid password incrementer
-            if(result.result == LoginAttemptResult.InvalidPassword)
-                await SetLoginTryAsync(result.userData.username);
+            int? triesLeft = 0;
+            if(result.result == LoginAttemptResult.InvalidPassword)     //Get tries set to the user
+                 triesLeft = await SetLoginTryAsync(result.userData?.username);
+            response.loginTryLeft = (5 - triesLeft) ?? default(int);
 
             //Uppon successfull login
             if (result.result == LoginAttemptResult.Success)
@@ -59,19 +62,21 @@ namespace CarCRUD.User
                 _user.userData = result.userData;
 
                 //Set response data
-                response = await SetupLoginResponse(_user, result.result);
-                response.result = result.result;
+                response = await SetupLoginResponse(_user, result.result);                
             }
 
             //Send response
             UserController.Send(response, _user);
         }
+        #endregion
 
+        #region LoginResponse
         private static async Task<LoginResponseMessage> SetupLoginResponse( User _user, LoginAttemptResult _result)
         {
             if (_user == null) return null;
 
             LoginResponseMessage response = new LoginResponseMessage();
+            response.result = _result;
 
             //Set user response information            
             UserData sendUser = GeneralManager.EncodeUser(_user.userData, false);
@@ -80,7 +85,9 @@ namespace CarCRUD.User
             if (_user.userData.type != UserType.Admin) //Dont send password if not admin requested
                 sendUser.password = "N/A";
             response.user = sendUser;
-            response.favourites = await DBController.GetFavouritesAsync(_user.userData.ID);
+            List<CarFavourite> favourites = await DBController.GetFavouritesAsync(_user.userData.ID);
+            //Safe copy favourites
+            response.favourites = await Task.Run(() => GeneralManager.DeepCopyList(favourites, new object[] { null, null }));
 
             //Set response data
             response.userResponseData = await GetGeneralResponseDataAsync();
@@ -95,7 +102,9 @@ namespace CarCRUD.User
             GeneralResponseData result = new GeneralResponseData();
 
             result.carBrands = await DBController.GetCarBrandsAsync();
-            result.carTypes = await DBController.GetCarTypesAsync("*");
+            List<CarType> types = await DBController.GetCarTypesAsync("*");
+            //Safe copy types
+            result.carTypes = await Task.Run(() => GeneralManager.DeepCopyList(types, new object[] { null }));
 
             return result;
         }
@@ -104,12 +113,25 @@ namespace CarCRUD.User
         {
             AdminResponseData result = new AdminResponseData();
 
-            result.users = await DBController.GetAllUserAsync();
-            result.requests = await DBController.GetRequestsByUsernameAsync("*");
+            //Get users
+            List<UserData> users = await DBController.GetAllUserAsync();
+            result.users = new List<UserData>();
+            //Decode all returned users
+            foreach(UserData user in users)
+            {
+                UserData decoded = GeneralManager.EncodeUser(user, false);
+                result.users.Add(decoded);
+            }
+
+            //Get requests
+            List<UserRequest> requests = await DBController.GetRequestsByUsernameAsync("*");
+            result.requests = await Task.Run(() => GeneralManager.DeepCopyList(requests, new object[] { null }));
 
             return result;
         }
+        #endregion
 
+        #region Registration
         public static async void RegistrationHandle(RegistrationRequestMessage _message, User _user)
         {
             //Check call validity
@@ -135,7 +157,9 @@ namespace CarCRUD.User
             //Send response
             UserController.Send(response, _user);
         }
+        #endregion
 
+        #region Logout
         public static void LogoutHandle(User _user)
         {
             if (_user == null) return;
@@ -145,6 +169,7 @@ namespace CarCRUD.User
 
             if (Server.loggingEnabled) Logger.LogState(_user);
         }
+        #endregion
         #endregion
 
         #region User Requests
@@ -186,7 +211,7 @@ namespace CarCRUD.User
         {
             if (_brand == null || _username == null) return false;
 
-            List<UserRequest> request = await DBController.GetRequestsByUsernameAsync("*");
+            List<UserRequest> request = await DBController.GetRequestsByUsernameAsync(_username);
 
             //If no request is found
             if (request == null || request.Count < 0)
@@ -201,29 +226,30 @@ namespace CarCRUD.User
         #endregion
 
         #region Other
+
         #region Modify User
         /// <summary>
         /// Increases or resets login try incrementer of a user.
         /// </summary>
         /// <param name="_username"></param>
         /// <param name="reset"></param>
-        private static async Task<bool> SetLoginTryAsync(string _username, bool reset = false)
+        private static async Task<int?> SetLoginTryAsync(string _username, bool reset = false)
         {
             //Check call validitiy
-            if (string.IsNullOrEmpty(_username)) return false;
+            if (string.IsNullOrEmpty(_username)) return null;
 
-            await Task.Run(() => SetLoginTry(_username, reset));
-            return true;
+            int? result = await Task.Run(() => SetLoginTry(_username, reset));
+            return result;
         }
 
-        private static async Task<bool> SetLoginTry(string _username, bool reset = false)
+        private static async Task<int?> SetLoginTry(string _username, bool reset = false)
         {
             //Check call validitiy
-            if (string.IsNullOrEmpty(_username)) return false;
+            if (string.IsNullOrEmpty(_username)) return null;
 
             //Get user
             UserData user = null;
-            try { user = await DBController.GetUserByUsernameAsync(_username); } catch { return false; }
+            try { user = await DBController.GetUserByUsernameAsync(_username); } catch { return null; }
 
             //Set tries. If reset, set it to zero
             if (!reset) user.passwordAttempts = Math.Clamp(++user.passwordAttempts, 0, 5);
@@ -235,7 +261,7 @@ namespace CarCRUD.User
 
             //Save
             await DBController.SetUserDataAsync(user, user.ID);
-            return true;
+            return user.passwordAttempts;
         }
         #endregion
 

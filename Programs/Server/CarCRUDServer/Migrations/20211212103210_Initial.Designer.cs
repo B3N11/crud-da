@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CarCRUD.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20211212011425_Initial")]
+    [Migration("20211212103210_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,17 +46,11 @@ namespace CarCRUD.Migrations
                     b.Property<int?>("carTypeDataID")
                         .HasColumnType("int");
 
-                    b.Property<int>("cartype")
-                        .HasColumnType("int");
-
                     b.Property<string>("color")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("fuel")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("user")
-                        .HasColumnType("int");
 
                     b.Property<int?>("userDataID")
                         .HasColumnType("int");
@@ -80,9 +74,6 @@ namespace CarCRUD.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("favouriteCar")
-                        .HasColumnType("int");
-
                     b.Property<int?>("favouriteCarDataID")
                         .HasColumnType("int");
 
@@ -102,9 +93,6 @@ namespace CarCRUD.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("brand")
-                        .HasColumnType("int");
 
                     b.Property<int?>("brandDataID")
                         .HasColumnType("int");
@@ -160,9 +148,6 @@ namespace CarCRUD.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("type")
-                        .HasColumnType("int");
-
-                    b.Property<int>("user")
                         .HasColumnType("int");
 
                     b.Property<int?>("userDataID")

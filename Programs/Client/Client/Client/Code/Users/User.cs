@@ -14,10 +14,14 @@ namespace CarCRUD.Users
         //General User
         public string userID = string.Empty;
         public UserStatus status;
+
+        //Data
         public UserData userData;
         public GeneralResponseData userResponseData;
         public AdminResponseData adminResponseData;
         public List<CarFavourite> favourites;
+        public List<UserRequest> requests;
+
         public bool canRequest = true;      //Enables/disables UI
 
         //Networking

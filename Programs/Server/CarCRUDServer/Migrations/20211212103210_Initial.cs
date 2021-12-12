@@ -44,7 +44,6 @@ namespace CarCRUD.Migrations
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    brand = table.Column<int>(type: "int", nullable: false),
                     brandDataID = table.Column<int>(type: "int", nullable: true),
                     name = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -67,7 +66,6 @@ namespace CarCRUD.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     type = table.Column<int>(type: "int", nullable: false),
                     brandAttach = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    user = table.Column<int>(type: "int", nullable: false),
                     userDataID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -87,9 +85,7 @@ namespace CarCRUD.Migrations
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    cartype = table.Column<int>(type: "int", nullable: false),
                     carTypeDataID = table.Column<int>(type: "int", nullable: true),
-                    user = table.Column<int>(type: "int", nullable: false),
                     userDataID = table.Column<int>(type: "int", nullable: true),
                     year = table.Column<int>(type: "int", nullable: false),
                     color = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -118,7 +114,6 @@ namespace CarCRUD.Migrations
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    favouriteCar = table.Column<int>(type: "int", nullable: false),
                     favouriteCarDataID = table.Column<int>(type: "int", nullable: true),
                     image = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
                 },

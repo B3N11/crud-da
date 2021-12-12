@@ -34,6 +34,9 @@
     <Compile Update="Views\RegistrationView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\UsersView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Themes\LoginButtonTheme.xaml">
@@ -73,6 +76,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\RegistrationView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\UsersView.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

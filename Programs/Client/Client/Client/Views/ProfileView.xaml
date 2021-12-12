@@ -72,7 +72,7 @@
                         Style="{StaticResource LoginButtonTheme}"/>
 
                 <Button x:Name="RequestAccountDeletion"
-                        Content="{Binding Path=AcDelRequestButtonTitle, Mode=OneWay}"
+                        Content="Request Account Deletion"
                         FontSize="17"
                         Height="40"
                         Width="220"

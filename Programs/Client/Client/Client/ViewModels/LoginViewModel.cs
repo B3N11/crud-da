@@ -65,7 +65,11 @@ namespace CarCRUD.ViewModels
         public void ResponseHandle(LoginAttemptResult _message, int _loginsLeft = 0)
         {
             if (_message == LoginAttemptResult.Success)
-                main.SetControl(new ActionViewModel(main), true);
+            {
+                if (UserController.user.userData.type != UserType.Admin)
+                    main.SetControl(new ActionViewModel(main), true);
+                else main.SetControl(new AdminactionViewModel(main), true);
+            }                
 
             else LoginResultDisplay(_message, _loginsLeft);
         }
