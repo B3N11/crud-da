@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CarCRUD.DataBase;
 using CarCRUD.DataModels;
@@ -103,7 +105,7 @@ namespace CarCRUD.User
             AdminResponseData result = new AdminResponseData();
 
             result.users = await DBController.GetAllUserAsync();
-            result.requests = await DBController.GetBrandRequestsByUsernameAsync("*");
+            result.requests = await DBController.GetRequestsByUsernameAsync("*");
 
             return result;
         }
@@ -134,20 +136,6 @@ namespace CarCRUD.User
             UserController.Send(response, _user);
         }
 
-        public static async void AdminCreateUserHandle(RegistrationRequestMessage _message, User _user)
-        {
-            //Check call validity
-            if (_message == null || _user == null) return;
-
-            //If user is not admin
-            if (_user.userData?.type != UserType.Admin) return;
-
-            LoginValidationResult result = await LoginValidator.ValidateRegistrationAsync(_message);
-            RegistrationResponseMessage response = new RegistrationResponseMessage();
-            response.type = NetMessageType.LoginResponse;
-            response.result = result.result;
-        }
-
         public static void LogoutHandle(User _user)
         {
             if (_user == null) return;
@@ -160,46 +148,55 @@ namespace CarCRUD.User
         #endregion
 
         #region User Requests
-        public static async void AccountDeleteRequestHandle(bool delete, User _user)
-        {
-            //Check call validity and if requested before
-            if (_user == null || _user.userData == null) return;
-
-            bool result = await SetDeleteRequest(delete, _user.userData);
-
-            AccountDeleteResponseMessage response = new AccountDeleteResponseMessage();
-            response.result = result;
-
-            UserController.Send(response, _user);
-        }
-
-        private static async Task<bool> SetDeleteRequest(bool delete, UserData _user)
-        {
-            if (_user == null) return false;
-
-            _user.accountDeleteRequested = delete;
-
-            bool result = await DBController.SetUserDataAsync(_user, _user.ID);
-            return result;
-        }
-
-        public static async void CarBrandRequestHandle(CarBrandAddRequestMessage _message, User _user)
+        public static async void UserRequestHandle(UserRequestMesssage _message, User _user)
         {
             if (_message == null || _user == null) return;
 
-            //For better matching results, store dictionary elements w/ upper chars
-            string brand = _message.brandName.ToUpper();
-            brand = GeneralManager.Encrypt(brand, true);
+            bool result = false;
+            if (_message.requestType == UserRequestType.AccountDelete)
+                result = await AccountDeleteRequestHandle( _user.userData.username);
+            if (_message.requestType == UserRequestType.BrandAttach)
+                result = await BrandAttachRequestHandle(_message.brandAttach, _user.userData.username);
 
-            //Try creating new brand request
-            UserRequestResult result = await DBController.CreateCarBrandRequestAsync(brand, _user.userData ?? null);
-
-            //Create response
-            CarBrandAddResponseMessage response = new CarBrandAddResponseMessage();
+            UserRequestResponse response = new UserRequestResponse();
             response.result = result;
 
-            //Send
             UserController.Send(response, _user);
+        }
+
+        private static async Task<bool> AccountDeleteRequestHandle(string _username)
+        {
+            //Check call validity and if requested before
+            if (_username == null) return false;
+
+            List<UserRequest> request = await DBController.GetRequestsByUsernameAsync(_username);
+
+            //If no request is found
+            if (request == null || request.Count < 0)
+                await DBController.CreateAccountDeleteRequestAsync(_username);
+
+            //If no account delete request is found
+            else if(!request.Any(r => r.type == UserRequestType.AccountDelete))
+                await DBController.CreateAccountDeleteRequestAsync(_username);
+
+            return true;
+        }
+
+        private static async Task<bool> BrandAttachRequestHandle(string _brand, string _username)
+        {
+            if (_brand == null || _username == null) return false;
+
+            List<UserRequest> request = await DBController.GetRequestsByUsernameAsync("*");
+
+            //If no request is found
+            if (request == null || request.Count < 0)
+                await DBController.CreateBrandAttachRequestAsync(_brand, _username);
+
+            //If no request with this brand is found
+            else if (!request.Any(r => r.brandAttach == _brand))
+                await DBController.CreateBrandAttachRequestAsync(_brand, _username);
+
+            return true;
         }
         #endregion
 
@@ -255,7 +252,6 @@ namespace CarCRUD.User
             newUser.password = GeneralManager.HashData(_message.passwordFirst);
             newUser.fullname = GeneralManager.Encrypt(_message.fullname, true);
             newUser.active = true;
-            newUser.accountDeleteRequested = false;
             newUser.passwordAttempts = 0;
 
             //Set User type

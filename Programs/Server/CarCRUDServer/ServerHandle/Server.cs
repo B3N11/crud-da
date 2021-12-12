@@ -176,7 +176,6 @@ namespace CarCRUD.ServerHandle
             Console.Write("Creating user in database...");
             UserData user = new UserData();
             user.active = true;
-            user.accountDeleteRequested = false;
             user.type = UserType.Admin;
             user.fullname = GeneralManager.Encrypt(fullname, true);
             user.username = GeneralManager.HashData(username);

@@ -23,17 +23,14 @@
         KeyAuthenticationRequest,
         KeyAuthenticationResponse,
         LoginRequest,
-        ReqistrationRequest,
+        RegistrationRequest,
         LoginResponse,
         AdminRegistrationRequest,
-        AdminRegistrationResponse,
         Logout,
 
         //Requests
-        AccountDeleteRequest,
-        AccountDeleteResponse,
-        CarBrandAddRequest,
-        CarBrandAddResponse
+        UserRequest,
+        UserRequestResponse
     }
 
     public enum LoginAttemptResult
@@ -53,6 +50,12 @@
         //General
         Success,    //Successful login
         Failure     //Fail in code
+    }
+
+    public enum UserRequestType
+    {
+        AccountDelete,
+        BrandAttach
     }
 
     public enum UserRequestResult

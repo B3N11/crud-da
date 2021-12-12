@@ -76,7 +76,7 @@ namespace CarCRUD.Tools
                 case NetMessageType.KeyAuthenticationRequest:
                     return Deserialize<KeyAuthenticationRequestMessage>(_object);
 
-                case NetMessageType.ReqistrationRequest:
+                case NetMessageType.RegistrationRequest:
                     return Deserialize<RegistrationRequestMessage>(_object);
 
                 case NetMessageType.LoginRequest:
@@ -88,8 +88,8 @@ namespace CarCRUD.Tools
                 case NetMessageType.LoginResponse:
                     return Deserialize<LoginResponseMessage>(_object);
 
-                case NetMessageType.AccountDeleteRequest:
-                    return Deserialize<AccountDeleteRequestMessage>(_object);
+                case NetMessageType.UserRequest:
+                    return Deserialize<UserRequestMesssage>(_object);
             }
 
             return result;
@@ -194,7 +194,6 @@ namespace CarCRUD.Tools
             result.active = _user.active;
             result.passwordAttempts = _user.passwordAttempts;
             result.ID = _user.ID;
-            result.accountDeleteRequested = _user.accountDeleteRequested;
             result.type = _user.type;
 
             return result;

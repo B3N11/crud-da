@@ -187,17 +187,14 @@ namespace CarCRUD.User
                 case NetMessageType.LoginRequest:       //Login Reques Message
                     UserActionHandler.LoginRequestHandleAsync(_message as LoginRequestMessage, _user); break;
 
-                case NetMessageType.ReqistrationRequest:
+                case NetMessageType.RegistrationRequest:
                     UserActionHandler.RegistrationHandle(_message as RegistrationRequestMessage, _user); break;
 
                 case NetMessageType.Logout:
                     UserActionHandler.LogoutHandle(_user); break;
 
-                case NetMessageType.AccountDeleteRequest:
-                    UserActionHandler.AccountDeleteRequestHandle((_message as AccountDeleteRequestMessage).result, _user); break;
-
-                case NetMessageType.CarBrandAddRequest:
-                    UserActionHandler.CarBrandRequestHandle(_message as CarBrandAddRequestMessage, _user); break;
+                case NetMessageType.UserRequest:
+                    UserActionHandler.UserRequestHandle((_message as UserRequestMesssage), _user); break;
             }
         }
         #endregion

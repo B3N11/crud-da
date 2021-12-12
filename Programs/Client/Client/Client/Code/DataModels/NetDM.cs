@@ -31,18 +31,25 @@ namespace CarCRUD.DataModels
         public LoginAttemptResult result { get; set; }
         public int loginTryLeft { get; set; }
         public UserData user { get; set; }
-        public UserResponseData responseData { get; set; }
+        public List<CarFavourite> favourites { get; set; }
+        public GeneralResponseData userResponseData { get; set; }
+        public AdminResponseData adminResponseData { get; set; }
 
         public LoginResponseMessage() => type = NetMessageType.LoginResponse;
     }
 
     public class LogoutMessage : NetMessage { public LogoutMessage() => type = NetMessageType.Logout; }
 
-    public class UserResponseData
+    public class GeneralResponseData
     {
         public List<CarBrand> carBrands { get; set; }
         public List<CarType> carTypes { get; set; }
-        public List<CarFavourite> favourites { get; set; }
+    }
+
+    public class AdminResponseData
+    {
+        public List<UserData> users { get; set; }
+        public List<UserRequest> requests { get; set; }
     }
 
     public class RegistrationRequestMessage : NetMessage
@@ -52,7 +59,7 @@ namespace CarCRUD.DataModels
         public string passwordSecond { get; set; }
         public string fullname { get; set; }
 
-        public RegistrationRequestMessage() => type = NetMessageType.AdminRegistrationRequest;
+        public RegistrationRequestMessage() => type = NetMessageType.RegistrationRequest;
     }
 
     public class AdminRegistrationRequestMessage : RegistrationRequestMessage
@@ -64,21 +71,13 @@ namespace CarCRUD.DataModels
 
     public class RegistrationResponseMessage : LoginResponseMessage { public RegistrationResponseMessage() => type = NetMessageType.LoginResponse; }
 
-    public class AccountDeleteRequestMessage : SimpleMessage { public AccountDeleteRequestMessage() => type = NetMessageType.AccountDeleteRequest; }
-
-    public class AccountDeleteResponseMessage : SimpleMessage { public AccountDeleteResponseMessage() => type = NetMessageType.AccountDeleteResponse; }
-
-    public class CarBrandAddRequestMessage : NetMessage
+    public class UserRequestMesssage : NetMessage
     {
-        public string brandName { get; set; }
-
-        public CarBrandAddRequestMessage() => type = NetMessageType.CarBrandAddRequest;
+        public UserRequestType requestType { get; set; }
+        public string brandAttach { get; set; }
+        public bool accountDelete { get; set; }
+        public UserRequestMesssage() => type = NetMessageType.UserRequest;
     }
 
-    public class CarBrandAddResponseMessage : NetMessage
-    {
-        public UserRequestResult result { get; set; }
-
-        public CarBrandAddResponseMessage() => type = NetMessageType.CarBrandAddResponse;
-    }
+    public class UserRequestResponse : SimpleMessage { public UserRequestResponse() => type = NetMessageType.UserRequestResponse; }
 }

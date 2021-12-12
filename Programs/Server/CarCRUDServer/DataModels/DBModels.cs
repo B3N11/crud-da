@@ -11,13 +11,14 @@ namespace CarCRUD.DataModels
         public int passwordAttempts { get; set; }
         public UserType type { get; set; }
         public bool active { get; set; }
-        public bool accountDeleteRequested { get; set; }
     }
 
-    public class UserBrandRequest
+    public class UserRequest
     {
         public int ID { get; set; }
-        public string brand { get; set; }
+        public UserRequestType type { get; set; }
+        public string brandAttach { get; set; }
+
         public int user { get; set; }
         public UserData userData { get; set; }
     }

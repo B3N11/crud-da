@@ -19,10 +19,6 @@ namespace CarCRUD.User
         //Networking
         public NetClient netClient;
 
-        //Login
-        public string lastUsername = string.Empty;
-        public int loginAttempts = 0;
-
         //Unique ID required to create a user
         public User(string _id) { userID = _id; }
 

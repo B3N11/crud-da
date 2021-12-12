@@ -35,7 +35,7 @@ namespace CarCRUD.Users
                 return false;
 
             RegistrationRequestMessage message = new RegistrationRequestMessage();
-            message.type = NetMessageType.ReqistrationRequest;
+            message.type = NetMessageType.RegistrationRequest;
             message.username = _username;
             message.passwordFirst = _passwordFirst;
             message.passwordSecond = _passwordSecond;
@@ -58,28 +58,15 @@ namespace CarCRUD.Users
         #endregion
 
         #region Requests
-        public static void AccountDeleteRequest(bool delete = true)
+        public static void AccountDeleteRequest()
         {
             if (!UserController.CheckClientConnection()) return;
 
-            AccountDeleteRequestMessage request = new AccountDeleteRequestMessage();
-            request.result = delete;
-
-            //Set locall
-            UserController.user.userData.accountDeleteRequested = delete;
+            UserRequestMesssage request = new UserRequestMesssage();
+            request.requestType = UserRequestType.AccountDelete;
 
             //Send
             UserController.Send(request);
-        }
-
-        public static void CarBrandRequest(string _brand)
-        {
-            if (!UserController.CheckClientConnection() || string.IsNullOrEmpty(_brand)) return;
-
-            CarBrandAddRequestMessage message = new CarBrandAddRequestMessage();
-            message.brandName = _brand;
-
-            UserController.Send(message);
         }
         #endregion
     }

@@ -32,18 +32,6 @@ namespace CarCRUD.ViewModels
                 NotifyOfPropertyChange(() => UserController.user.userData.type.ToString() ?? "N/A");
             }
         }
-        public string AcDelRequestButtonTitle
-        {
-            get
-            {
-                return UserController.user.userData.accountDeleteRequested == false ? "Request Account Deletion" : "Cancel Account Deletion";
-            }
-            set
-            {
-                requestBut = UserController.user.userData.accountDeleteRequested == false ? "Request Account Deletion" : "Cancel Account Deletion";
-                NotifyOfPropertyChange(() => requestBut);
-            }
-        }
         #endregion
 
         public ProfileViewModel(MainViewModel _main)
@@ -75,7 +63,7 @@ namespace CarCRUD.ViewModels
             }
 
             //Request/Cancel Account deletion
-            UserActionHandler.AccountDeleteRequest(!UserController.user.userData.accountDeleteRequested);
+            UserActionHandler.AccountDeleteRequest();
         }
         #endregion
     }
