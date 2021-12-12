@@ -10,19 +10,29 @@ namespace CarCRUD.ViewModels
         #region Properties
         private MainViewModel main;
         private ActionViewModel action;
+        private CarFavourite selectedCar;
 
-        private List<CarFavourite> cars = new List<CarFavourite>();
-
+        public CarFavourite SelectedCar
+        {
+            get
+            {
+                return selectedCar;
+            }
+            set
+            {
+                selectedCar = value;
+                NotifyOfPropertyChange(() => selectedCar);
+            }
+        }
         public List<CarFavourite> Cars
         {
             get
             {
-                return cars;
+                return UserController.user.favourites;
             }
             set
             {
-                cars = UserController.user.favourites;
-                NotifyOfPropertyChange(() => cars);
+                NotifyOfPropertyChange(() => UserController.user.favourites);
             }
         }
         #endregion

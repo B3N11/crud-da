@@ -93,3 +93,5 @@ D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-window
 D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Views\AdminactionView.baml
 D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Views\UsersView.g.cs
 D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Views\UsersView.baml
+D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Views\UsereditView.g.cs
+D:\My Projects\GIT\crud-da\Programs\Client\Client\Client\obj\Debug\net5.0-windows\Views\UsereditView.baml

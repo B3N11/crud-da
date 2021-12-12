@@ -6,6 +6,9 @@ using CarCRUD.Networking;
 using CarCRUD.DataModels;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Linq;
 
 namespace CarCRUD.Tools
 {
@@ -51,7 +54,7 @@ namespace CarCRUD.Tools
         }
         #endregion
 
-        #region Casting
+        #region Data Management
         public static NetClient CastNetClient(object _object)
         {
             NetClient result = null;
@@ -85,6 +88,9 @@ namespace CarCRUD.Tools
                 case NetMessageType.AdminRegistrationRequest:
                     return Deserialize<AdminRegistrationRequestMessage>(_object);
 
+                case NetMessageType.AdminRegistrationResponse:
+                    return Deserialize<AdminRegistrationResponseMessage>(_object);
+
                 case NetMessageType.LoginResponse:
                     return Deserialize<LoginResponseMessage>(_object);
 
@@ -94,9 +100,29 @@ namespace CarCRUD.Tools
 
             return result;
         }
-        #endregion
 
-        #region Serializing
+        /// <summary>
+        /// Clears(deep copies) all the elements if a list and returns them as a cleared list. Paramters depend on the IDeepCopyable type you want to get.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="_list"></param>
+        /// <returns>Returns null if T does not inherit from IDeepCopyable interface.</returns>
+        public static List<T> DeepCopyList<T>(List<T> _list, object[] _parameters)
+        {
+            //If T doesnt iherit from IDeepCopyable
+            if (!typeof(T).GetTypeInfo().IsAssignableFrom(typeof(IDeepCopyable<T>).Ge‌​tTypeInfo()))
+                return null;
+
+            List<T> result = new List<T>();
+            foreach (IDeepCopyable<T> item in _list)
+            {
+                T cleared = item.DeepCopy(_parameters);
+                result.Add(cleared);
+            }
+
+            return result;
+        }
+
         public static string Serialize<T>(T _object)
         {
             if (_object == null) return null;
@@ -115,6 +141,31 @@ namespace CarCRUD.Tools
             try { result = JsonConvert.DeserializeObject<T>(_data); } catch { }
 
             return result;
+        }
+
+        public static async Task<bool> CreateFullFavouritesAsync(List<CarFavourite> _favourites, GeneralResponseData _responseData)
+        {
+            if (_favourites == null || _responseData == null)
+                return false;
+
+            bool result = await Task.Run(() => CreateFullFavourites(_favourites, _responseData));
+
+            return result;
+        }
+
+        private static async Task<bool> CreateFullFavourites(List<CarFavourite> _favourites, GeneralResponseData _responseData)
+        {
+            if (_favourites == null || _responseData == null)
+                return false;
+
+            foreach(CarFavourite current in _favourites)
+            {
+                CarType type = _responseData.carTypes.First(t => t.ID == current.cartype);
+                type.brandData = _responseData.carBrands.First(b => b.ID == type.brand);
+                current.carTypeData = type;
+            }
+
+            return true;
         }
         #endregion
 

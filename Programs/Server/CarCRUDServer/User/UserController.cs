@@ -8,6 +8,7 @@ using CarCRUD.Networking;
 using CarCRUD.Tools;
 using CarCRUD.ServerHandle;
 using System.Text;
+using System.Reflection;
 
 namespace CarCRUD.User
 {
@@ -161,9 +162,11 @@ namespace CarCRUD.User
             string message = GeneralManager.Serialize(_object);
             message = GeneralManager.Encrypt(message, true);
 
+            if (Server.loggingEnabled) Logger.LogResponse(_user, _object as NetMessage);
+
             //Send
             byte[] data = Encoding.UTF8.GetBytes(message);
-            _user.Send(data);
+            _user.Send(data);            
         }
         #endregion
 
@@ -194,7 +197,19 @@ namespace CarCRUD.User
                     UserActionHandler.LogoutHandle(_user); break;
 
                 case NetMessageType.UserRequest:
-                    UserActionHandler.UserRequestHandle((_message as UserRequestMesssage), _user); break;
+                    UserActionHandler.UserRequestHandle(_message as UserRequestMesssage, _user); break;
+
+                case NetMessageType.AdminRegistrationRequest:
+                    UserActionHandler.AdminRegistrationHandle(_message as AdminRegistrationRequestMessage, _user); break;
+
+                case NetMessageType.BrandCreate:
+                    UserActionHandler.BrandCreateHandleAsync(_message as BrandCreateMessage, _user); break;
+
+                case NetMessageType.FavouriteCarCreateRequest:
+                    UserActionHandler.FavouriteCarCreateHandleAsync(_message as FavouriteCarCreateRequestMessage, _user); break;
+
+                case NetMessageType.UserDeleteRequest:
+                    UserActionHandler.UserDeleteHandleAsync(_message as UserDeleteRequestMessage, _user); break;
             }
         }
         #endregion

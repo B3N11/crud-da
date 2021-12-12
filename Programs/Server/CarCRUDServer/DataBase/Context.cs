@@ -9,7 +9,7 @@ namespace CarCRUD.DataBase
         public DbSet<UserRequest> UserRequests { get; set; }
         public DbSet<CarBrand> CarBrands { get; set; }
         public DbSet<CarType> CarType { get; set; }
-        public DbSet<CarFavourite> FavouriteCars { get; set; }
+        public DbSet<FavouriteCar> FavouriteCars { get; set; }
         public DbSet<CarImage> CarImages { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -61,7 +61,7 @@ namespace CarCRUD.ServerHandle
 
         private static void SetApplicationParameters()
         {
-            LoginValidator.SetTools(DBController.GetUserByUsernameAsync, GeneralManager.HashData);
+            LoginValidator.SetTools(DBController.GetUserAsync, GeneralManager.HashData);
             DBController.SetTools(new Context());
         }
 
@@ -128,7 +128,7 @@ namespace CarCRUD.ServerHandle
 
             //Check Admins
             Console.Write("Checking admins...");
-            List<UserData> admins = await DBController.GetUsersByTypeAsync(UserType.Admin);
+            List<UserData> admins = await DBController.GetUsersAsync(UserType.Admin);
             Console.WriteLine("Success");
 
             int adminCount = admins == null ? 0 : admins.Count;

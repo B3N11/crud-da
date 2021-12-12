@@ -26,6 +26,7 @@
         RegistrationRequest,
         LoginResponse,
         AdminRegistrationRequest,
+        AdminRegistrationResponse,
         Logout,
 
         //Requests

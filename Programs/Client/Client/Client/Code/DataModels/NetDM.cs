@@ -71,6 +71,8 @@ namespace CarCRUD.DataModels
 
     public class RegistrationResponseMessage : LoginResponseMessage { public RegistrationResponseMessage() => type = NetMessageType.LoginResponse; }
 
+    public class AdminRegistrationResponseMessage : RegistrationResponseMessage { public AdminRegistrationResponseMessage() => type = NetMessageType.AdminRegistrationResponse; }
+
     public class UserRequestMesssage : NetMessage
     {
         public UserRequestType requestType { get; set; }

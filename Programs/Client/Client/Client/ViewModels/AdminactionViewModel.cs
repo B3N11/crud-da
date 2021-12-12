@@ -15,7 +15,7 @@ namespace CarCRUD.ViewModels
         #region Button Events
         public void OpenUsers()
         {
-            if (users == null) users = new UsersViewModel(main);
+            if (users == null) users = new UsersViewModel(main, this);
             SetControl(users, false);
         }
         #endregion

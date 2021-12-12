@@ -3,15 +3,21 @@ using System.Text;
 
 namespace CarCRUD.Tools
 {
+    /// <summary>
+    /// Encrypts a string with bitpush and base64.
+    /// </summary>
     class CeasarEncrypt
     {
         /// <summary>
-        /// Encrypts or decrypts a data string.
+        /// Data needs to be provided in base64 form to decrypt it and the key must match with the key the data has been encrypted with.
         /// </summary>
-        /// <param name="data">The data to be crypted.</param>
+        /// <param name="data">The data to be ecrypted/decrypted.</param>
         /// <param name="encrypt">True to encrypt, false to decrypt.</param>
+        /// <param name="key">The key used to encrypt/decrypt.</param>
         public static string Encrypt(string data, bool encrypt, int key)
         {
+            if (string.IsNullOrEmpty(data)) return null;
+
             if (encrypt)
             {
                 byte[] bytes = Encoding.UTF8.GetBytes(data);

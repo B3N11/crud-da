@@ -15,8 +15,11 @@ namespace CarCRUD
             if (_message == null) return;            
 
             //Set User data
-            if (_message.result == LoginAttemptResult.Success)
+            if (_message.result == LoginAttemptResult.Success && _message.type != NetMessageType.AdminRegistrationResponse)
                 UserController.SetUserData(_message.user, _message.userResponseData, _message.favourites, _message.adminResponseData);
+
+            if (_message.result == LoginAttemptResult.Success && _message.type == NetMessageType.AdminRegistrationResponse)
+                UserController.user.adminResponseData.users.Add(_message.user);
 
             //Raise event
             UserController.OnLoginResultedEvent?.Invoke(_message.result, _message.loginTryLeft);

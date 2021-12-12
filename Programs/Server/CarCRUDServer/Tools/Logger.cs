@@ -21,6 +21,13 @@ namespace CarCRUD.Tools
             Console.WriteLine($"{DateTime.Now} MESSAGE ARRIVED: {_object.GetID()} sent message with type of {_netMessage.type}.");
         }
 
+        public static void LogResponse(ILoggable _object, NetMessage _netMessage)
+        {
+            if (_object == null || _netMessage == null) return;
+
+            Console.WriteLine($"{DateTime.Now} RESPONSE SENT: Responded to {_object.GetID()} with {_netMessage.type}.");
+        }
+
         public static void LogConnectionState(IEndpointLoggable _object)
         {
             if (_object == null) return;

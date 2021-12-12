@@ -4,6 +4,7 @@ using CarCRUD.DataModels;
 using CarCRUD.Tools;
 using System.Text;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CarCRUD.Users
 {
@@ -143,11 +144,14 @@ namespace CarCRUD.Users
             user.canRequest = true;
         }
 
-        public static void SetUserData(UserData _data, GeneralResponseData _responseData, List<CarFavourite> _favourites, AdminResponseData _adminResponseData = null)
+        public static async void SetUserData(UserData _data, GeneralResponseData _responseData, List<CarFavourite> _favourites, AdminResponseData _adminResponseData = null)
         {
             user.userData = _data;
             user.userResponseData = _responseData;
             user.adminResponseData = _adminResponseData;
+
+            //Fill favourites
+            await GeneralManager.CreateFullFavouritesAsync(_favourites, _responseData);
             user.favourites = _favourites;
         }
 
@@ -178,6 +182,8 @@ namespace CarCRUD.Users
             {
                 case NetMessageType.LoginResponse:       //Login Reques Message
                     ResponseHandler.LoginResponseHandle(_message as LoginResponseMessage); break;
+                case NetMessageType.AdminRegistrationResponse:
+                    ResponseHandler.LoginResponseHandle(_message as AdminRegistrationResponseMessage); break;
             }
 
             //Enable new request

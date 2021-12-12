@@ -45,6 +45,23 @@ namespace CarCRUD.Users
             return true;
         }
 
+        public static bool RequestAdminRegistration(string _username, string _passwordFirst, string _passwordSecond, string _fullname)
+        {
+            if (!UserController.CheckClientConnection()) return false;
+            if (string.IsNullOrEmpty(_username) || string.IsNullOrEmpty(_passwordFirst) || string.IsNullOrEmpty(_passwordSecond) || string.IsNullOrEmpty(_fullname))
+                return false;
+
+            AdminRegistrationRequestMessage message = new AdminRegistrationRequestMessage();
+            message.username = _username;
+            message.passwordFirst = _passwordFirst;
+            message.passwordSecond = _passwordSecond;
+            message.fullname = _fullname;
+            message.userType = UserType.Admin;
+
+            UserController.Send(message);
+            return true;
+        }
+
         /// <summary>
         /// Sends logout indicator message
         /// </summary>

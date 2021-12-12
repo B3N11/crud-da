@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CarCRUD.DataBase;
 using CarCRUD.DataModels;
+using CarCRUD.Networking;
 using CarCRUD.ServerHandle;
 using CarCRUD.Tools;
 
@@ -71,7 +72,7 @@ namespace CarCRUD.User
         #endregion
 
         #region LoginResponse
-        private static async Task<LoginResponseMessage> SetupLoginResponse( User _user, LoginAttemptResult _result)
+        private static async Task<LoginResponseMessage> SetupLoginResponse(User _user, LoginAttemptResult _result)
         {
             if (_user == null) return null;
 
@@ -79,15 +80,17 @@ namespace CarCRUD.User
             response.result = _result;
 
             //Set user response information            
-            UserData sendUser = GeneralManager.EncodeUser(_user.userData, false);
+            UserData sendUser = GeneralManager.EncryptUser(_user.userData, false);
 
             //Set user specific response data
             if (_user.userData.type != UserType.Admin) //Dont send password if not admin requested
                 sendUser.password = "N/A";
             response.user = sendUser;
-            List<CarFavourite> favourites = await DBController.GetFavouritesAsync(_user.userData.ID);
-            //Safe copy favourites
-            response.favourites = await Task.Run(() => GeneralManager.DeepCopyList(favourites, new object[] { null, null }));
+
+            //Get favourites
+            List<FavouriteCar> favourites = await DBController.GetFavouritesAsync(_user.userData.ID);
+            //Decrypt all
+            response.favourites.ForEach(c => c = GeneralManager.EncryptFavouriteCar(c, false));
 
             //Set response data
             response.userResponseData = await GetGeneralResponseDataAsync();
@@ -101,10 +104,13 @@ namespace CarCRUD.User
         {
             GeneralResponseData result = new GeneralResponseData();
 
-            result.carBrands = await DBController.GetCarBrandsAsync();
-            List<CarType> types = await DBController.GetCarTypesAsync("*");
-            //Safe copy types
-            result.carTypes = await Task.Run(() => GeneralManager.DeepCopyList(types, new object[] { null }));
+            //Get data
+            List<CarBrand> brands = await DBController.GetCarBrandsAsync();
+            List<CarType> types = await DBController.GetCarTypesAsync("*");            
+
+            //Decrypt all data
+            result.carBrands.ForEach(b => b = GeneralManager.EncryptCarBrand(b, false));
+            result.carTypes.ForEach(t => t = GeneralManager.EncryptCarType(t, false));
 
             return result;
         }
@@ -113,19 +119,13 @@ namespace CarCRUD.User
         {
             AdminResponseData result = new AdminResponseData();
 
-            //Get users
-            List<UserData> users = await DBController.GetAllUserAsync();
-            result.users = new List<UserData>();
-            //Decode all returned users
-            foreach(UserData user in users)
-            {
-                UserData decoded = GeneralManager.EncodeUser(user, false);
-                result.users.Add(decoded);
-            }
+            //Get data
+            result.users = await DBController.GetAllUserAsync();
+            result.requests = await DBController.GetRequestsAsync("*");
 
-            //Get requests
-            List<UserRequest> requests = await DBController.GetRequestsByUsernameAsync("*");
-            result.requests = await Task.Run(() => GeneralManager.DeepCopyList(requests, new object[] { null }));
+            //Decode all data
+            result.users.ForEach(u => u = GeneralManager.EncryptUser(u, false));
+            result.requests.ForEach(r => r = GeneralManager.EncryptRequest(r, false));
 
             return result;
         }
@@ -139,7 +139,6 @@ namespace CarCRUD.User
 
             LoginValidationResult result = await LoginValidator.ValidateRegistrationAsync(_message);
             RegistrationResponseMessage response = new RegistrationResponseMessage();
-            response.type = NetMessageType.LoginResponse;
             response.result = result.result;
 
             if(result.result == LoginAttemptResult.Success)
@@ -149,12 +148,32 @@ namespace CarCRUD.User
                 _user.userData = user;
 
                 //Send back user information
-                UserData sendUser = GeneralManager.EncodeUser(user, false);
+                UserData sendUser = GeneralManager.EncryptUser(user, false);
                 sendUser.password = "N/A";      //Dont send password even to admin
                 response.user = sendUser;
             }
 
             //Send response
+            UserController.Send(response, _user);
+        }
+
+        public static async void AdminRegistrationHandle(AdminRegistrationRequestMessage _message, User _user)
+        {
+            if (_message == null || _user == null || _user.userData?.type != UserType.Admin) return;
+
+            LoginValidationResult result = await LoginValidator.ValidateRegistrationAsync(_message);
+            AdminRegistrationResponseMessage response = new AdminRegistrationResponseMessage();
+            response.result = result.result;
+                        
+            //If success, create user
+            if(result.result == LoginAttemptResult.Success)
+            {
+                UserData user = await CreateUser(_message);
+                response.user = GeneralManager.EncryptUser(user, false);
+                if (user == null) response.result = LoginAttemptResult.Failure;
+            }
+
+            //Send Response
             UserController.Send(response, _user);
         }
         #endregion
@@ -177,32 +196,36 @@ namespace CarCRUD.User
         {
             if (_message == null || _user == null) return;
 
+
             bool result = false;
+            string hashedBrand = GeneralManager.Encrypt(_message.brandAttach, true);
+
             if (_message.requestType == UserRequestType.AccountDelete)
                 result = await AccountDeleteRequestHandle( _user.userData.username);
-            if (_message.requestType == UserRequestType.BrandAttach)
-                result = await BrandAttachRequestHandle(_message.brandAttach, _user.userData.username);
 
-            UserRequestResponse response = new UserRequestResponse();
+            if (_message.requestType == UserRequestType.BrandAttach)
+                result = await BrandAttachRequestHandle(hashedBrand, _user.userData.username);
+
+            UserRequestResponseMessage response = new UserRequestResponseMessage();
             response.result = result;
 
             UserController.Send(response, _user);
         }
 
-        private static async Task<bool> AccountDeleteRequestHandle(string _username)
+        private static async Task<bool> AccountDeleteRequestHandle(string _hashedUsername)
         {
             //Check call validity and if requested before
-            if (_username == null) return false;
+            if (_hashedUsername == null) return false;
 
-            List<UserRequest> request = await DBController.GetRequestsByUsernameAsync(_username);
+            List<UserRequest> request = await DBController.GetRequestsAsync(_hashedUsername);
 
             //If no request is found
             if (request == null || request.Count < 0)
-                await DBController.CreateAccountDeleteRequestAsync(_username);
+                await DBController.CreateAccountDeleteRequestAsync(_hashedUsername);
 
             //If no account delete request is found
             else if(!request.Any(r => r.type == UserRequestType.AccountDelete))
-                await DBController.CreateAccountDeleteRequestAsync(_username);
+                await DBController.CreateAccountDeleteRequestAsync(_hashedUsername);
 
             return true;
         }
@@ -211,15 +234,18 @@ namespace CarCRUD.User
         {
             if (_brand == null || _username == null) return false;
 
-            List<UserRequest> request = await DBController.GetRequestsByUsernameAsync(_username);
+            //Get requests
+            string hashedUsername = GeneralManager.HashData(_username);
+            string hashedBrand = GeneralManager.Encrypt(_brand, true);
+            List<UserRequest> request = await DBController.GetRequestsAsync(hashedUsername);
 
             //If no request is found
             if (request == null || request.Count < 0)
-                await DBController.CreateBrandAttachRequestAsync(_brand, _username);
+                await DBController.CreateBrandAttachRequestAsync(hashedBrand, hashedUsername);
 
             //If no request with this brand is found
-            else if (!request.Any(r => r.brandAttach == _brand))
-                await DBController.CreateBrandAttachRequestAsync(_brand, _username);
+            else if (!request.Any(r => r.brandAttach == hashedBrand))
+                await DBController.CreateBrandAttachRequestAsync(hashedBrand, hashedUsername);
 
             return true;
         }
@@ -231,25 +257,25 @@ namespace CarCRUD.User
         /// <summary>
         /// Increases or resets login try incrementer of a user.
         /// </summary>
-        /// <param name="_username"></param>
+        /// <param name="_hashedUsername"></param>
         /// <param name="reset"></param>
-        private static async Task<int?> SetLoginTryAsync(string _username, bool reset = false)
+        private static async Task<int?> SetLoginTryAsync(string _hashedUsername, bool reset = false)
         {
             //Check call validitiy
-            if (string.IsNullOrEmpty(_username)) return null;
+            if (string.IsNullOrEmpty(_hashedUsername)) return null;
 
-            int? result = await Task.Run(() => SetLoginTry(_username, reset));
+            int? result = await Task.Run(() => SetLoginTry(_hashedUsername, reset));
             return result;
         }
 
-        private static async Task<int?> SetLoginTry(string _username, bool reset = false)
+        private static async Task<int?> SetLoginTry(string _hashedUsername, bool reset = false)
         {
             //Check call validitiy
-            if (string.IsNullOrEmpty(_username)) return null;
+            if (string.IsNullOrEmpty(_hashedUsername)) return null;
 
             //Get user
             UserData user = null;
-            try { user = await DBController.GetUserByUsernameAsync(_username); } catch { return null; }
+            try { user = await DBController.GetUserAsync(_hashedUsername); } catch { return null; }
 
             //Set tries. If reset, set it to zero
             if (!reset) user.passwordAttempts = Math.Clamp(++user.passwordAttempts, 0, 5);
@@ -281,18 +307,102 @@ namespace CarCRUD.User
             newUser.passwordAttempts = 0;
 
             //Set User type
-            if(_message.type == NetMessageType.AdminRegistrationRequest)
-            {
-                AdminRegistrationRequestMessage adminMessage = _message as AdminRegistrationRequestMessage;
-                newUser.type = adminMessage.userType;
-            }
+            if(_message.type == NetMessageType.AdminRegistrationRequest)    //If admin, set user type
+                newUser.type = (_message as AdminRegistrationRequestMessage).userType;
             else newUser.type = UserType.User;
 
             //Save into db
             await DBController.CreateUserAsync(newUser);
             return newUser;
         }
+
+        public static async void UserDeleteHandleAsync(UserDeleteRequestMessage _message, User _user)
+        {
+            if (_message == null || _user == null || _user.userData?.type != UserType.Admin) return;
+
+            string hashedUsername = GeneralManager.HashData(_message.username);
+            UserDeleteResponseMessage response = new UserDeleteResponseMessage();
+            response.result = await Task.Run(() => DeleteUser(hashedUsername));
+
+            UserController.Send(response, _user);
+        }
+
+        private static async Task<bool> DeleteUser(string _hashedUsername)
+        {
+            if (string.IsNullOrEmpty(_hashedUsername))
+                return false;
+
+            //Get user
+            UserData user = await DBController.GetUserAsync(_hashedUsername);
+            if (user == null) return false;
+
+            //Check if user requested delete
+            List<UserRequest> requests = await DBController.GetRequestsAsync(_hashedUsername);
+            if (!requests.Any(r => r.type == UserRequestType.AccountDelete))
+                return false;
+
+            bool result = await DBController.DeleteUser(_hashedUsername);
+            return result;
+        }
         #endregion
+        #endregion
+
+        #region Car Handle
+        public static async void BrandCreateHandleAsync(BrandCreateMessage _message, User _user)
+        {
+            if (_message == null || _user == null || _user.userData?.type != UserType.Admin) return;
+
+            string hashedBrand = GeneralManager.Encrypt(_message.name, true);
+            List<CarBrand> brands = await DBController.GetCarBrandsAsync();
+
+            //If already exists
+            if (brands != null && brands.Any(b => b.name == hashedBrand))
+                return;
+
+            bool result = await DBController.CreateBrandAsync(hashedBrand);
+
+            //Send response
+            BrandCreateResponseMessage response = new BrandCreateResponseMessage();
+            response.result = result;
+
+            UserController.Send(response, _user);
+        }
+
+        public static async void FavouriteCarCreateHandleAsync(FavouriteCarCreateRequestMessage _message, User _user)
+        {
+            if (_message == null || _user == null) return;
+
+            FavouriteCarCreateResponseMessage response = new FavouriteCarCreateResponseMessage();
+            response.result = await FavouriteCarCreate(_message, _user.userData);
+
+            UserController.Send(response, _user);
+        }
+
+        private static async Task<bool> FavouriteCarCreate(FavouriteCarCreateRequestMessage _message, UserData _user)
+        {
+            if (_message == null) return false;
+
+            //Get type of car
+            string hashedType = GeneralManager.Encrypt(_message.carType, true);
+            CarType type;
+            List<CarType> types = await DBController.GetCarTypesAsync(_message.brandID);
+
+            //If there is none, create one
+            if (types == null || !types.Any(t => t.name == hashedType))
+                type = await DBController.CreateCarTypeAsync(hashedType, _message.brandID);
+            //If there is one
+            else type = types.First(t => t.name == hashedType);
+
+            FavouriteCar car = new FavouriteCar();
+            car.carTypeData = type;
+            car.userData = _user;
+            car.color = GeneralManager.Encrypt(_message.color, true);
+            car.year = _message.year;
+            car.fuel = GeneralManager.Encrypt(_message.fuel, true);
+
+            bool result = await DBController.CreateFavouriteCarAsync(car);
+            return result;
+        }
         #endregion
     }
 }

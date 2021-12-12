@@ -26,11 +26,18 @@
         RegistrationRequest,
         LoginResponse,
         AdminRegistrationRequest,
+        AdminRegistrationResponse,
         Logout,
 
-        //Requests
+        //Messaging
         UserRequest,
-        UserRequestResponse
+        UserRequestResponse,
+        BrandCreate,
+        BrandCreateResponse,
+        FavouriteCarCreateRequest,
+        FavouriteCarCreateResponse,
+        UserDeleteRequest,
+        UserDeleteResponse
     }
 
     public enum LoginAttemptResult
@@ -62,6 +69,14 @@
     {
         AccountDeleteAlreadyRequested,
         CarPropertyAlreadyRequestedOrExists,
+        Success,
+        Fail
+    }
+
+    public enum GeneralResult
+    {
+        InvalidFormat,
+        AlreadyExists,
         Success,
         Fail
     }

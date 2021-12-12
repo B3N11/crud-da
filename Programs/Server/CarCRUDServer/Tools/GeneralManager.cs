@@ -69,32 +69,39 @@ namespace CarCRUD.Tools
         /// <returns></returns>
         public static NetMessage GetMessage(string _object)
         {
-            if (_object == null) return null;
-
-            NetMessage result = Deserialize<NetMessage>(_object);
-
-            switch (result.type)
+            try
             {
-                case NetMessageType.KeyAuthenticationRequest:
-                    return Deserialize<KeyAuthenticationRequestMessage>(_object);
+                if (_object == null) return null;
 
-                case NetMessageType.RegistrationRequest:
-                    return Deserialize<RegistrationRequestMessage>(_object);
+                NetMessage result = Deserialize<NetMessage>(_object);
 
-                case NetMessageType.LoginRequest:
-                    return Deserialize<LoginRequestMessage>(_object);
+                switch (result.type)
+                {
+                    case NetMessageType.KeyAuthenticationRequest:
+                        return Deserialize<KeyAuthenticationRequestMessage>(_object);
 
-                case NetMessageType.AdminRegistrationRequest:
-                    return Deserialize<AdminRegistrationRequestMessage>(_object);
+                    case NetMessageType.RegistrationRequest:
+                        return Deserialize<RegistrationRequestMessage>(_object);
 
-                case NetMessageType.LoginResponse:
-                    return Deserialize<LoginResponseMessage>(_object);
+                    case NetMessageType.LoginRequest:
+                        return Deserialize<LoginRequestMessage>(_object);
 
-                case NetMessageType.UserRequest:
-                    return Deserialize<UserRequestMesssage>(_object);
+                    case NetMessageType.AdminRegistrationRequest:
+                        return Deserialize<AdminRegistrationRequestMessage>(_object);
+
+                    case NetMessageType.LoginResponse:
+                        return Deserialize<LoginResponseMessage>(_object);
+
+                    case NetMessageType.UserRequest:
+                        return Deserialize<UserRequestMesssage>(_object);
+
+                    case NetMessageType.BrandCreate:
+                        return Deserialize<BrandCreateMessage>(_object);
+                }
+
+                return result;
             }
-
-            return result;
+            catch { return null; }
         }
 
         /// <summary>
@@ -107,7 +114,7 @@ namespace CarCRUD.Tools
         {
             //If T doesnt iherit from IDeepCopyable
             if (!typeof(T).GetTypeInfo().IsAssignableFrom(typeof(IDeepCopyable<T>).Ge‌​tTypeInfo()))
-                return null;
+                throw new Exception("Type of the list must implement IDeepCopyable interface to support DeepCopy().");
 
             List<T> result = new List<T>();
             foreach (IDeepCopyable<T> item in _list)
@@ -150,6 +157,8 @@ namespace CarCRUD.Tools
         /// <returns></returns>
         public static string Encrypt(string _data, bool _encrypt)
         {
+            if (string.IsNullOrEmpty(_data)) return null;
+
             return CeasarEncrypt.Encrypt(_data, _encrypt, encryptionKey);
         }
 
@@ -202,12 +211,13 @@ namespace CarCRUD.Tools
         }
 
         /// <summary>
-        /// Encodes/decodes the data of a user.
+        /// Encrypts/Decrypts a FavouriteCar instance. If set to recursive, all its encryptable property. It will leave username and password hashed, once they have been hashed! 
+        /// Avoid multiple hashing!
         /// </summary>
         /// <param name="_user"></param>
         /// <param name="_encode"></param>
         /// <returns></returns>
-        public static UserData EncodeUser(UserData _user, bool _encode)
+        public static UserData EncryptUser(UserData _user, bool _encode)
         {
             if (_user == null) return null;
 
@@ -219,6 +229,83 @@ namespace CarCRUD.Tools
             result.passwordAttempts = _user.passwordAttempts;
             result.ID = _user.ID;
             result.type = _user.type;
+
+            return result;
+        }
+
+        /// <summary>
+        /// Encrypts/Decrypts a FavouriteCar instance. If set to recursive, all its encryptable property.
+        /// </summary>
+        /// <param name="_car"></param>
+        /// <param name="_encrypt"></param>
+        /// <param name="_recursive"></param>
+        /// <returns></returns>
+        public static FavouriteCar EncryptFavouriteCar(FavouriteCar _car, bool _encrypt, bool _recursive = false)
+        {
+            if (_car == null) return null;
+
+            FavouriteCar result = new FavouriteCar();
+            result.ID = _car.ID;
+            result.color = Encrypt(_car.color, _encrypt);
+            result.fuel = Encrypt(_car.fuel, _encrypt);
+            result.year = _car.year;
+            if (_recursive)
+            {
+                result.userData = EncryptUser(_car.userData, _encrypt);
+                result.carTypeData = EncryptCarType(_car.carTypeData, _encrypt);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Encrypts/Decrypts a CarType instance. If set to recursive, all its encryptable property.
+        /// </summary>
+        /// <param name="_car"></param>
+        /// <param name="_encrypt"></param>
+        /// <param name="_recursive"></param>
+        /// <returns></returns>
+        /// <summary>
+        public static CarType EncryptCarType(CarType _car, bool _encrypt, bool _recursive = false)
+        {
+            if (_car == null) return null;
+
+            CarType result = new CarType();
+            result.ID = _car.ID;
+            result.name = Encrypt(_car.name, _encrypt);
+            if (_recursive)
+                result.brandData = EncryptCarBrand(_car.brandData, _encrypt);
+            else result.brandData = null;
+
+            return result;
+        }
+
+        /// <summary>
+        /// Encrypts/Decrypts a CarBrand instance.
+        /// </summary>
+        /// <param name="_car"></param>
+        /// <param name="_encrypt"></param>
+        /// <returns></returns>
+        public static CarBrand EncryptCarBrand(CarBrand _car, bool _encrypt)
+        {
+            if (_car == null) return null;
+
+            CarBrand result = new CarBrand();
+            result.ID = _car.ID;
+            result.name = Encrypt(_car.name, _encrypt);
+
+            return result;
+        }
+
+        public static UserRequest EncryptRequest(UserRequest _request, bool _encrypt, bool _recursive = false)
+        {
+            if (_request == null) return null;
+
+            UserRequest result = new UserRequest();
+            result.ID = _request.ID;
+            result.type = _request.type;
+            result.brandAttach = Encrypt(_request.brandAttach, _encrypt);
+            if (_recursive) result.userData = EncryptUser(_request.userData, _encrypt);
 
             return result;
         }
