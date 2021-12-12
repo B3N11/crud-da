@@ -19,7 +19,7 @@ namespace CarCRUD.Users
         public UserData userData;
         public GeneralResponseData userResponseData;
         public AdminResponseData adminResponseData;
-        public List<CarFavourite> favourites;
+        public List<FavouriteCar> favourites;
         public List<UserRequest> requests;
 
         public bool canRequest = true;      //Enables/disables UI

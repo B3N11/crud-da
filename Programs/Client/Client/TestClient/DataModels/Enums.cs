@@ -5,6 +5,7 @@
         PendingAuthentication,
         Authenticated,
         LoggedIn,
+        LoggedOut,
         Connected,
         Disconnected,
         Dropped
@@ -19,19 +20,18 @@
     public enum NetMessageType
     {
         //Connection
-        KeyAuthentication,
+        KeyAuthenticationRequest,
+        KeyAuthenticationResponse,
         LoginRequest,
-        ReqistrationRequest,
+        RegistrationRequest,
         LoginResponse,
         AdminRegistrationRequest,
         AdminRegistrationResponse,
         Logout,
 
         //Requests
-        AccountDeleteRequest,
-        AccountDeleteResponse,
-        CarBrandAddRequest,
-        CarBrandAddResponse
+        UserRequest,
+        UserRequestResponse
     }
 
     public enum LoginAttemptResult
@@ -41,6 +41,7 @@
         InvalidPassword,     //Invalid login data
         LogginAttemptsMax,      //Client reached maximum login attempts
         AccountLocked,          //The desired account is inactive
+        AlreadyLoggedIn,
 
         //Registration
         InvalidPasswordFormat,      //Password does not meet requirements
@@ -50,6 +51,12 @@
         //General
         Success,    //Successful login
         Failure     //Fail in code
+    }
+
+    public enum UserRequestType
+    {
+        AccountDelete,
+        BrandAttach
     }
 
     public enum UserRequestResult

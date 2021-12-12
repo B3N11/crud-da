@@ -1,28 +1,36 @@
 ﻿using System;
+using System.Text;
+using System.Collections.Generic;
 using CarCRUD.Networking;
 using CarCRUD.DataModels;
 using CarCRUD.Tools;
-using System.Text;
+using CarCRUD.Core;
 
 namespace CarCRUD.Users
 {
     class UserController
     {
-        private static User user;
+        public static User user;
 
         public delegate void ClientDisconnected();
-        public delegate void ClientConnected();
+        public delegate void ClientConnectionResulted(bool _result);
+        public delegate void ClientConnecting();
+        public delegate void LoginResponse(LoginAttemptResult _result, int _loginLeft);
 
         public static ClientDisconnected OnClientDisconnectedEvent;
-        public static ClientConnected OnClientConnectedEvent;
+        public static ClientConnectionResulted OnClientConnectionResultedEvent;
+        public static ClientConnecting OnClientConnectingEvent;
+        public static LoginResponse OnLoginResultedEvent;
 
         #region Client Handle
         //Connects to server
-        public static void Connect()
+        public static void Connect(string _ip)
         {
             if (CheckClientConnection()) return;
 
-            user.netClient.ConnectAsync(Client.ip);
+            user.netClient.ConnectAsync(_ip);
+
+            OnClientConnectingEvent?.Invoke();
         }
 
         /// <summary>
@@ -37,13 +45,17 @@ namespace CarCRUD.Users
 
             //Failed connection attempt
             if (crea.result == Result.Fail)
+            {
                 user.status = UserStatus.Disconnected;
+                OnClientConnectionResultedEvent?.Invoke(false);
+            }
 
             //Successful connection
             else
             {
                 SendAuthentication();
                 user.status = UserStatus.PendingAuthentication;
+                OnClientConnectionResultedEvent?.Invoke(true);
             }
         }
 
@@ -53,11 +65,12 @@ namespace CarCRUD.Users
             NetClient client = GeneralManager.CastNetClient(_object);
             if (client == null) return;
 
-            //Set status and raise event
-            user.status = UserStatus.Disconnected;
+            //Reset user and raise event
+            user = null;
             OnClientDisconnectedEvent?.Invoke();
 
-            Console.WriteLine("Disconnected");
+            Console.Clear();
+            Displayer.Disconnected();
         }
 
         /// <summary>
@@ -69,11 +82,11 @@ namespace CarCRUD.Users
             if (!CheckClientConnection()) return;
 
             //Create Message
-            KeyAuthenticationMessage message = new KeyAuthenticationMessage();
-            message.key = Client.key;
+            KeyAuthenticationRequestMessage message = new KeyAuthenticationRequestMessage();
+            message.key = Client.Data.key;
 
             //Send
-            Send(message);
+            Send(message, false);
         }
         #endregion
 
@@ -84,8 +97,8 @@ namespace CarCRUD.Users
             if (_sender == null || string.IsNullOrEmpty(_message)) return;
 
             //Check user validity
-            User user = null;
-            try { user = _sender as User; } catch { return; }
+            User _user = null;
+            try { _user = _sender as User; } catch { return; }
 
             //Decrypt message from received data
             string decryptedMessage = GeneralManager.Encrypt(_message, false);
@@ -94,13 +107,13 @@ namespace CarCRUD.Users
             NetMessage message = GeneralManager.GetMessage(decryptedMessage);
 
             //Let message be handled based on its type
-            HandleMessage(message, user);
+            HandleMessage(message);
         }
 
-        public static void Send<T>(T _object)
+        public static void Send<T>(T _object, bool _waitforResponse = true)
         {
             //Check connection
-            if (_object == null || user == null) return;
+            if (_object == null || !CheckClientConnection()) return;
 
             //Encrypt Data
             string message = GeneralManager.Serialize(_object);
@@ -109,6 +122,8 @@ namespace CarCRUD.Users
             //Send
             byte[] data = Encoding.UTF8.GetBytes(message);
             user.Send(data);
+            //If needed, dont let anything happen until the response arrived
+            user.canRequest = !_waitforResponse;
         }
         #endregion
 
@@ -117,23 +132,40 @@ namespace CarCRUD.Users
         /// Creates a new user instance. Forcing the process will lose connection if there is any.
         /// </summary>
         /// <param name="_force"></param>
-        public static void CreateUser(bool _force = false)
+        public static void CreateUser(int _port, bool _force = false)
         {
             if (CheckClientConnection() && !_force) return;
 
             user = new User(Guid.NewGuid().ToString());
-            user.netClient = new NetClient(Guid.NewGuid().ToString(), Client.port);
+            user.netClient = new NetClient(Guid.NewGuid().ToString(), _port);
             user.netClient.OnMessageReceivedEvent += user.MessageReceived;
             user.OnMessageReceivedEvent += MessageReceivedHandle;
             user.netClient.OnConnectionResultedEvent += NetClientConnectedHandle;
             user.netClient.OnClientDisconnectedEvent += NetClientDisconnectedHandle;
+            user.canRequest = true;
         }
 
-        public static void SetUserData(UserData _data)
+        public static async void SetUserData(UserData _data, GeneralResponseData _responseData, List<FavouriteCar> _favourites, AdminResponseData _adminResponseData = null)
         {
-            if (_data == null) return;
-
             user.userData = _data;
+            user.userResponseData = _responseData;
+            user.adminResponseData = _adminResponseData;
+
+            //Fill favourites
+            await GeneralManager.CreateFullFavouritesAsync(_favourites, _responseData);
+            user.favourites = _favourites;
+        }
+
+        public static void Logout(bool breakConnection = false)
+        {
+            if (!CheckClientConnection()) return;
+
+            SetUserData(null, null, null, null);
+            UserActionHandler.RequestLogout();
+
+            //Recreates user if disconnectint from server was requested
+            if(breakConnection)
+                CreateUser(Client.Data.port, true);
         }
         #endregion
 
@@ -142,28 +174,33 @@ namespace CarCRUD.Users
         /// Handles a NetMessage instance based on their type. The method assumes the _message has been cast.
         /// </summary>
         /// <param name="_message"></param>
-        private static void HandleMessage(NetMessage _message, User _user)
+        private static void HandleMessage(NetMessage _message)
         {
             //Check call validity
-            if (_message == null || _user == null) return;            
+            if (_message == null || !CheckClientConnection()) return;            
 
             switch (_message.type)
             {
                 case NetMessageType.LoginResponse:       //Login Reques Message
                     ResponseHandler.LoginResponseHandle(_message as LoginResponseMessage); break;
+                case NetMessageType.AdminRegistrationResponse:
+                    ResponseHandler.LoginResponseHandle(_message as AdminRegistrationResponseMessage); break;
             }
+
+            //Enable new request
+            user.canRequest = true;
         }
         #endregion
 
         #region Others
         /// <summary>
-        /// Check the user and client instance. If they are not null, then client.connected will be returned
+        /// Check the user and client instance. If they are not null, true will be returned
         /// </summary>
         /// <param name="connected"></param>
         /// <returns></returns>
-        private static bool CheckClientConnection()
+        public static bool CheckClientConnection()
         {
-            bool result = user == null ? false : (user.netClient == null) ? false : user.netClient.connected;
+            bool result = user == null ? false : (user.netClient == null) ? false : true;
 
             return result; 
         }

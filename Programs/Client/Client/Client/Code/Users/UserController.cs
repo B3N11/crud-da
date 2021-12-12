@@ -144,7 +144,7 @@ namespace CarCRUD.Users
             user.canRequest = true;
         }
 
-        public static async void SetUserData(UserData _data, GeneralResponseData _responseData, List<CarFavourite> _favourites, AdminResponseData _adminResponseData = null)
+        public static async void SetUserData(UserData _data, GeneralResponseData _responseData, List<FavouriteCar> _favourites, AdminResponseData _adminResponseData = null)
         {
             user.userData = _data;
             user.userResponseData = _responseData;

@@ -18,6 +18,7 @@ namespace CarCRUD.DataModels
 
     public class KeyAuthenticationResponseMessage : SimpleMessage { public KeyAuthenticationResponseMessage() => type = NetMessageType.KeyAuthenticationResponse; }
 
+    #region Login & Registration
     public class LoginRequestMessage : NetMessage
     {
         public string username { get; set; }
@@ -31,7 +32,7 @@ namespace CarCRUD.DataModels
         public LoginAttemptResult result { get; set; }
         public int loginTryLeft { get; set; }
         public UserData user { get; set; }
-        public List<CarFavourite> favourites { get; set; }
+        public List<FavouriteCar> favourites { get; set; }
         public GeneralResponseData userResponseData { get; set; }
         public AdminResponseData adminResponseData { get; set; }
 
@@ -62,6 +63,8 @@ namespace CarCRUD.DataModels
         public RegistrationRequestMessage() => type = NetMessageType.RegistrationRequest;
     }
 
+    public class RegistrationResponseMessage : LoginResponseMessage { public RegistrationResponseMessage() => type = NetMessageType.LoginResponse; }
+
     public class AdminRegistrationRequestMessage : RegistrationRequestMessage
     {
         public UserType userType { get; set; }
@@ -69,10 +72,10 @@ namespace CarCRUD.DataModels
         public AdminRegistrationRequestMessage() => type = NetMessageType.AdminRegistrationRequest;
     }
 
-    public class RegistrationResponseMessage : LoginResponseMessage { public RegistrationResponseMessage() => type = NetMessageType.LoginResponse; }
-
     public class AdminRegistrationResponseMessage : RegistrationResponseMessage { public AdminRegistrationResponseMessage() => type = NetMessageType.AdminRegistrationResponse; }
+    #endregion
 
+    #region Data Messaging
     public class UserRequestMesssage : NetMessage
     {
         public UserRequestType requestType { get; set; }
@@ -81,5 +84,37 @@ namespace CarCRUD.DataModels
         public UserRequestMesssage() => type = NetMessageType.UserRequest;
     }
 
-    public class UserRequestResponse : SimpleMessage { public UserRequestResponse() => type = NetMessageType.UserRequestResponse; }
+    public class UserRequestResponseMessage : SimpleMessage { public UserRequestResponseMessage() => type = NetMessageType.UserRequestResponse; }
+
+    public class BrandCreateMessage : NetMessage
+    {
+        public string name { get; set; }
+
+        public BrandCreateMessage() => type = NetMessageType.BrandCreate;
+    }
+
+    public class BrandCreateResponseMessage : SimpleMessage { public BrandCreateResponseMessage() => type = NetMessageType.BrandCreateResponse; }
+
+    public class FavouriteCarCreateRequestMessage : NetMessage
+    {
+        public int brandID { get; set; }
+        public string carType { get; set; }
+        public string color { get; set; }
+        public int year { get; set; }
+        public string fuel { get; set; }
+
+        public FavouriteCarCreateRequestMessage() => type = NetMessageType.FavouriteCarCreateRequest;
+    }
+
+    public class FavouriteCarCreateResponseMessage : SimpleMessage { public FavouriteCarCreateResponseMessage() => type = NetMessageType.FavouriteCarCreateResponse; }
+
+    public class UserDeleteRequestMessage : NetMessage
+    {
+        public string username { get; set; }
+
+        public UserDeleteRequestMessage() => type = NetMessageType.UserDeleteRequest;
+    }
+
+    public class UserDeleteResponseMessage : SimpleMessage { public UserDeleteResponseMessage() => type = NetMessageType.UserDeleteResponse; }
+    #endregion
 }

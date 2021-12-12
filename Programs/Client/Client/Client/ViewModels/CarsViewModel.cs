@@ -10,9 +10,9 @@ namespace CarCRUD.ViewModels
         #region Properties
         private MainViewModel main;
         private ActionViewModel action;
-        private CarFavourite selectedCar;
+        private FavouriteCar selectedCar;
 
-        public CarFavourite SelectedCar
+        public FavouriteCar SelectedCar
         {
             get
             {
@@ -24,7 +24,7 @@ namespace CarCRUD.ViewModels
                 NotifyOfPropertyChange(() => selectedCar);
             }
         }
-        public List<CarFavourite> Cars
+        public List<FavouriteCar> Cars
         {
             get
             {

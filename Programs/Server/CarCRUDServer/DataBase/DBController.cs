@@ -7,13 +7,18 @@ using Microsoft.EntityFrameworkCore;
 namespace CarCRUD.DataBase
 {
     /// <summary>
-    /// Handles database interactions. Every
+    /// DBController is the only module that interacts with database directly with the help of EntityFramework.
+    /// 
+    /// Every text based data stored in the database is either hashed or encrypted using a custom encrypt tool (See: CeasarEncrypter.cs)
+    /// 
+    /// DBController assumes, that every data passed to its methods are in proper format, thus it won't modify it. (Data needs to be encrypted/hashed even fro query.)
+    /// 
+    /// Most of the public functions are async due to the longer database operations. They are usually just a wrapper around their sync pair.
     /// </summary>
     class DBController
     {
-        #region Properties
+        #region Variables
         private static Context database;
-
         private static bool initialized = false;
         #endregion
 
@@ -43,24 +48,24 @@ namespace CarCRUD.DataBase
         /// <summary>
         /// Returns UserData based on username. Asyncronous operation, await for result!
         /// </summary>
-        /// <param name="_username"></param>
+        /// <param name="_hashedUsername"></param>
         /// <returns></returns>
-        public static async Task<UserData> GetUserAsync(string _username)
+        public static async Task<UserData> GetUserAsync(string _hashedUsername)
         {
             //Check call validity
-            if (string.IsNullOrEmpty(_username) || !initialized) return null;
+            if (string.IsNullOrEmpty(_hashedUsername) || !initialized) return null;
 
-            UserData result = await Task.Run(() => GetUser(_username));
+            UserData result = await Task.Run(() => GetUser(_hashedUsername));
             return result;
         }
 
-        private static UserData GetUser(string _username)
+        private static UserData GetUser(string _hashedUsername)
         {
             //Check call validity
-            if (string.IsNullOrEmpty(_username) || !initialized) return null;
+            if (string.IsNullOrEmpty(_hashedUsername) || !initialized) return null;
 
             UserData result = null;
-            try { result = database.Users.First(u => u.username == _username); } catch { }
+            try { result = database.Users.First(u => u.username == _hashedUsername); } catch { }
 
             return result;
         }
@@ -72,6 +77,8 @@ namespace CarCRUD.DataBase
         /// <returns></returns>
         public static async Task<UserData> GetUserAsync(int _ID)
         {
+            if (!initialized) return null;
+
             UserData user = null;
             user = await Task.Run(() => GetUser(_ID));
 
@@ -80,6 +87,8 @@ namespace CarCRUD.DataBase
 
         private static UserData GetUser(int ID)
         {
+            if (!initialized) return null;
+
             UserData user = null;
             try { user = database.Users.First(u => u.ID == ID); }
             catch { }
@@ -94,13 +103,17 @@ namespace CarCRUD.DataBase
         /// <returns></returns>
         public static async Task<List<UserData>> GetUsersAsync(UserType _userType)
         {
-            List<UserData>  result = await Task.Run(() => GetUsers(_userType));
+            if (!initialized) return null;
+
+            List<UserData> result = await Task.Run(() => GetUsers(_userType));
 
             return result;
         }
 
         private static List<UserData> GetUsers(UserType _userType)
         {
+            if (!initialized) return null;
+
             List<UserData> result = null;
 
             try { result = database.Users.Where(u => u.type == _userType).ToList(); }
@@ -115,6 +128,8 @@ namespace CarCRUD.DataBase
         /// <returns></returns>
         public static async Task<List<UserData>> GetAllUserAsync()
         {
+            if (!initialized) return null;
+
             List<UserData> result = null;
             result = await Task.Run(() => GetAllUser());
 
@@ -123,6 +138,8 @@ namespace CarCRUD.DataBase
 
         private static List<UserData> GetAllUser()
         {
+            if (!initialized) return null;
+
             List<UserData> result = null;
             try { result = database.Users.Where(u => true).ToList(); }
             catch { }
@@ -140,6 +157,8 @@ namespace CarCRUD.DataBase
         /// <returns></returns>
         public static async Task<List<CarBrand>> GetCarBrandsAsync()
         {
+            if (!initialized) return null;
+
             List<CarBrand> result = null;
             result = await Task.Run(() => GetCarBrands());
 
@@ -148,6 +167,8 @@ namespace CarCRUD.DataBase
 
         private static List<CarBrand> GetCarBrands()
         {
+            if (!initialized) return null;
+
             List<CarBrand> result = null;
             try { result = database.CarBrands.Where(c => true).ToList(); }
             catch { }
@@ -155,8 +176,15 @@ namespace CarCRUD.DataBase
             return result;
         }
 
+        /// <summary>
+        /// Returns a CarBrand based on its ID.
+        /// </summary>
+        /// <param name="_ID"></param>
+        /// <returns></returns>
         public static async Task<CarBrand> GetCarBrandAsync(int _ID)
         {
+            if (!initialized) return null;
+
             CarBrand brand = await Task.Run(() => GetCarBrand(_ID));
 
             return brand;
@@ -164,6 +192,8 @@ namespace CarCRUD.DataBase
 
         private static CarBrand GetCarBrand(int _ID)
         {
+            if (!initialized) return null;
+
             CarBrand brand = null;
             try { brand = database.CarBrands.First(b => b.ID == _ID); }
             catch { }
@@ -171,14 +201,22 @@ namespace CarCRUD.DataBase
             return brand;
         }
 
-        public static async Task<bool> CreateBrandAsync(string _brand)
+        /// <summary>
+        /// Creates a CarBrand in database.
+        /// </summary>
+        /// <param name="_encryptedBrandName"></param>
+        /// <returns></returns>
+        public static async Task<bool> CreateBrandAsync(string _encryptedBrandName)
         {
-            if (string.IsNullOrEmpty(_brand)) return false;
+            if (string.IsNullOrEmpty(_encryptedBrandName) || !initialized) return false;
 
-            CarBrand brand = new CarBrand();
-            brand.name = _brand;
+            bool exists = database.CarBrands.Any(b => b.name == _encryptedBrandName);
+            if (exists) return false;
 
-            database.CarBrands.Add(brand);
+            CarBrand newBrand = new CarBrand();
+            newBrand.name = _encryptedBrandName;
+
+            database.CarBrands.Add(newBrand);
 
             try { await database.SaveChangesAsync(); }
             catch { return false; }
@@ -190,72 +228,98 @@ namespace CarCRUD.DataBase
         /// <summary>
         /// Returns all cartypes belonging to a brand. Set parameter to * to get all the types!
         /// </summary>
-        /// <param name="_carBrand"></param>
+        /// <param name="_encryptedBrandName"></param>
         /// <returns></returns>
-        public static async Task<List<CarType>> GetCarTypesAsync(string _carBrand)
+        public static async Task<List<CarType>> GetCarTypesAsync(string _encryptedBrandName, bool _withoutAdditionalData = true)
         {
-            if (string.IsNullOrEmpty(_carBrand)) return null;
+            if (string.IsNullOrEmpty(_encryptedBrandName) || !initialized) return null;
 
             List<CarType> result = null;
-            result = await Task.Run(() => GetCarTypes(_carBrand));
+            result = await Task.Run(() => GetCarTypes(_encryptedBrandName, _withoutAdditionalData));
 
             return result;
         }
 
-        private static async Task<List<CarType>> GetCarTypes(string _carBrand)
+        private static List<CarType> GetCarTypes(string _encryptedBrandName, bool _withoutAdditionalData = true)
         {
+            if (string.IsNullOrEmpty(_encryptedBrandName) || !initialized) return null;
+
             List<CarType> result = null;
 
             //Get all types
-            if (_carBrand == "*")
+            if (_encryptedBrandName == "*")
             {
-                try { result = await Task.Run(() => database.CarType.Where(c => true).ToList()); }
-                catch { }
+                if(_withoutAdditionalData)
+                    try { result = database.CarType.Where(t => true).ToList(); } catch { }
+
+                else try { result = database.CarType.Include(t => t.brandData).Where(t => true).ToList(); } catch { }
             }
             //Get types of a brand
             else
             {
-                try { result = await Task.Run(() => database.CarType.Where(c => c.brandData.name == _carBrand).ToList()); }
-                catch { }
+                if(_withoutAdditionalData)
+                    try { result = database.CarType.Where(c => c.brandData.name == _encryptedBrandName).ToList(); } catch { }
+                else try { result = database.CarType.Include(t => t.brandData).Where(c => c.brandData.name == _encryptedBrandName).ToList(); } catch { }
             }
 
             return result;
         }
 
-        public static async Task<List<CarType>> GetCarTypesAsync(int _brandID)
+        /// <summary>
+        /// Returns CarTypes of a brand.
+        /// </summary>
+        /// <param name="_brandID"></param>
+        /// <returns></returns>
+        public static async Task<List<CarType>> GetCarTypesAsync(int _brandID, bool _withoutAdditionalData = true)
         {
+            if (!initialized) return null;
+
             List<CarType> result = null;
-            result = await Task.Run(() => GetCarTypes(_brandID));
+            result = await Task.Run(() => GetCarTypes(_brandID, _withoutAdditionalData));
 
             return result;
         }
 
-        private static async Task<List<CarType>> GetCarTypes(int _brandID)
+        private static List<CarType> GetCarTypes(int _brandID, bool _withoutAdditionalData = true)
         {
+            if (!initialized) return null;
+
             List<CarType> result = null;
 
             //Get all types
-            try { result = await Task.Run(() => database.CarType.Where(c => c.brandData.ID == _brandID).ToList()); }
-            catch { }
+            if(_withoutAdditionalData)
+                try { result = database.CarType.Where(c => c.brandData.ID == _brandID).ToList(); } catch { }
+            else try { result = database.CarType.Include(c => c.brandData).Where(c => c.brandData.ID == _brandID).ToList(); } catch { }
 
             return result;
         }
 
-        public static async Task<CarType> CreateCarTypeAsync(string _name, int _brandID)
+        /// <summary>
+        /// Create CarType in database linked to a CarBrand
+        /// </summary>
+        /// <param name="_encryptedTypeName"></param>
+        /// <param name="_brandID"></param>
+        /// <returns></returns>
+        public static async Task<CarType> CreateCarTypeAsync(string _encryptedTypeName, int _brandID)
         {
-            if (string.IsNullOrEmpty(_name))
+            if (string.IsNullOrEmpty(_encryptedTypeName) || !initialized)
                 return null;
 
-            CarType result = await Task.Run(() => CreateCarType(_name, _brandID));
+            CarType result = await Task.Run(() => CreateCarType(_encryptedTypeName, _brandID));
 
             return result;
         }
 
-        private static async Task<CarType> CreateCarType(string _name, int _brandID)
+        private static async Task<CarType> CreateCarType(string _encryptedTypeName, int _brandID)
         {
+            if (string.IsNullOrEmpty(_encryptedTypeName) || !initialized)
+                return null;
+
             CarType type = new CarType();
-            type.name = _name;
+            type.name = _encryptedTypeName;
             type.brandData = await GetCarBrandAsync(_brandID);
+
+            //Check if brand exists
             if (type.brandData == null) return null;
 
             database.CarType.Add(type);
@@ -272,45 +336,60 @@ namespace CarCRUD.DataBase
         /// </summary>
         /// <param name="_userID"></param>
         /// <returns></returns>
-        public static async Task<List<FavouriteCar>> GetFavouritesAsync(int _userID)
+        public static async Task<List<FavouriteCar>> GetFavouritesAsync(int _userID, bool _withoutAdditionalData = true)
         {
+            if (!initialized) return null;
+
             List<FavouriteCar> result = null;
-            result = await Task.Run(() => GetFavourites(_userID));
+            result = await Task.Run(() => GetFavourites(_userID, _withoutAdditionalData));
 
             return result;
         }
 
-        private static List<FavouriteCar> GetFavourites(int _userID)
+        private static List<FavouriteCar> GetFavourites(int _userID, bool _withoutAdditionalData = true)
         {
+            if (!initialized) return null;
+
             List<FavouriteCar> result = null;
-            try { result = database.FavouriteCars.Where(c => c.userData.ID == _userID).ToList(); }
-            catch { }
+
+            if(_withoutAdditionalData)
+                try { result = database.FavouriteCars.Where(c => c.userData.ID == _userID).ToList(); } catch { }
+            
+            else try { result = database.FavouriteCars.Include(c => c.userData).Include(c => c.carTypeData.brandData).Where(c => c.userData.ID == _userID).ToList(); } catch { }
 
             return result;
         }
 
-        public static async Task<List<FavouriteCar>> GetFavouritesAsync(string _username)
+        public static async Task<List<FavouriteCar>> GetFavouritesAsync(string _hashedUsername, bool _withoutAdditionalData = true)
         {
-            if (_username == null) return null;
+            if (_hashedUsername == null || ! initialized) return null;
 
             List<FavouriteCar> result = null;
-            result = await Task.Run(() => GetFavourites(_username));
+            result = await Task.Run(() => GetFavourites(_hashedUsername, _withoutAdditionalData));
 
             return result;
         }
 
-        private static async Task<List<FavouriteCar>> GetFavourites(string _username)
+        private static List<FavouriteCar> GetFavourites(string _hashedUsername, bool _withoutAdditionalData = true)
         {
+            if (_hashedUsername == null || !initialized) return null;
+
             List<FavouriteCar> result = null;
-            try { result = database.FavouriteCars.Where(c => c.userData.username == _username).ToList(); }
-            catch { }
+            if(_withoutAdditionalData)
+                try { result = database.FavouriteCars.Where(c => c.userData.username == _hashedUsername).ToList(); } catch { }
+            else try { result = database.FavouriteCars.Include(c => c.userData).Include(c => c.carTypeData).Where(c => c.userData.username == _hashedUsername).ToList(); } catch { }
 
             return result;
         }
 
+        /// <summary>
+        /// Creates a new FavouriteCar in database.
+        /// </summary>
+        /// <param name="_favouriteCar"></param>
+        /// <returns></returns>
         public static async Task<bool> CreateFavouriteCarAsync(FavouriteCar _favouriteCar)
         {
-            if (_favouriteCar == null) return false;
+            if (_favouriteCar == null || !initialized) return false;
 
             database.FavouriteCars.Add(_favouriteCar);
             try { await database.SaveChangesAsync(); }
@@ -325,25 +404,34 @@ namespace CarCRUD.DataBase
         /// <summary>
         /// Get all requests based on username.
         /// </summary>
-        /// <param name="_username"></param>
+        /// <param name="_hashedUsername"></param>
         /// <param name="_withoutAdditionalData"></param>
         /// <returns></returns>
-        public static async Task<List<UserRequest>> GetRequestsAsync(string _username)
+        public static async Task<List<UserRequest>> GetRequestsAsync(string _hashedUsername, bool _withoutAdditionalData = true)
         {
-            if (string.IsNullOrEmpty(_username)) return null;
+            if (string.IsNullOrEmpty(_hashedUsername)) return null;
 
-            List<UserRequest> result = await Task.Run(() => GetRequests(_username));
+            List<UserRequest> result = await Task.Run(() => GetRequests(_hashedUsername, _withoutAdditionalData));
 
             return result;
         }
 
-        private static List<UserRequest> GetRequests(string _username)
+        private static List<UserRequest> GetRequests(string _hashedUsername, bool _withoutAdditionalData = true)
         {
             List<UserRequest> result = null;
 
-            if(_username == "*")
-                try { result = database.UserRequests.Include(r => r.userData).ToList(); } catch { }
-            else try { result = database.UserRequests.Include(r => r.userData).Where(r => r.userData.username == _username).ToList(); } catch { }
+            if(_hashedUsername == "*")
+            {
+                if(_withoutAdditionalData)
+                    try { result = database.UserRequests.Where(r => true).ToList(); } catch { }
+                else try { result = database.UserRequests.Include(r => r.userData).Where(r => true).ToList(); } catch { }
+            }
+            else
+            {
+                if (_withoutAdditionalData)
+                    try { result = database.UserRequests.Where(r => r.userData.username == _hashedUsername).ToList(); } catch { }
+                else try { result = database.UserRequests.Include(r => r.userData).Where(r => r.userData.username == _hashedUsername).ToList(); } catch { }
+            }
 
             return result;
         }
@@ -425,6 +513,12 @@ namespace CarCRUD.DataBase
             return true;
         }
 
+        /// <summary>
+        /// Replaces a users data with new UserData. The ID needs to be the one's you wish to replace.
+        /// </summary>
+        /// <param name="_userData"></param>
+        /// <param name="_ID"></param>
+        /// <returns></returns>
         public static async Task<bool> SetUserDataAsync(UserData _userData, int _ID)
         {
             if (_userData == null) return false;

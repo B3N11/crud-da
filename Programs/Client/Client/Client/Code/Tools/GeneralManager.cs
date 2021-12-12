@@ -143,7 +143,7 @@ namespace CarCRUD.Tools
             return result;
         }
 
-        public static async Task<bool> CreateFullFavouritesAsync(List<CarFavourite> _favourites, GeneralResponseData _responseData)
+        public static async Task<bool> CreateFullFavouritesAsync(List<FavouriteCar> _favourites, GeneralResponseData _responseData)
         {
             if (_favourites == null || _responseData == null)
                 return false;
@@ -153,12 +153,12 @@ namespace CarCRUD.Tools
             return result;
         }
 
-        private static async Task<bool> CreateFullFavourites(List<CarFavourite> _favourites, GeneralResponseData _responseData)
+        private static async Task<bool> CreateFullFavourites(List<FavouriteCar> _favourites, GeneralResponseData _responseData)
         {
             if (_favourites == null || _responseData == null)
                 return false;
 
-            foreach(CarFavourite current in _favourites)
+            foreach(FavouriteCar current in _favourites)
             {
                 CarType type = _responseData.carTypes.First(t => t.ID == current.cartype);
                 type.brandData = _responseData.carBrands.First(b => b.ID == type.brand);

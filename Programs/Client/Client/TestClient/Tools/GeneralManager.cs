@@ -6,6 +6,9 @@ using CarCRUD.Networking;
 using CarCRUD.DataModels;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Linq;
 
 namespace CarCRUD.Tools
 {
@@ -51,7 +54,7 @@ namespace CarCRUD.Tools
         }
         #endregion
 
-        #region Casting & Serializing
+        #region Data Management
         public static NetClient CastNetClient(object _object)
         {
             NetClient result = null;
@@ -73,10 +76,10 @@ namespace CarCRUD.Tools
 
             switch (result.type)
             {
-                case NetMessageType.KeyAuthentication:
-                    return Deserialize<KeyAuthenticationMessage>(_object);
+                case NetMessageType.KeyAuthenticationRequest:
+                    return Deserialize<KeyAuthenticationRequestMessage>(_object);
 
-                case NetMessageType.ReqistrationRequest:
+                case NetMessageType.RegistrationRequest:
                     return Deserialize<RegistrationRequestMessage>(_object);
 
                 case NetMessageType.LoginRequest:
@@ -84,13 +87,42 @@ namespace CarCRUD.Tools
 
                 case NetMessageType.AdminRegistrationRequest:
                     return Deserialize<AdminRegistrationRequestMessage>(_object);
+
+                case NetMessageType.AdminRegistrationResponse:
+                    return Deserialize<AdminRegistrationResponseMessage>(_object);
+
+                case NetMessageType.LoginResponse:
+                    return Deserialize<LoginResponseMessage>(_object);
+
+                case NetMessageType.UserRequest:
+                    return Deserialize<UserRequestMesssage>(_object);
             }
 
             return result;
         }
-        #endregion
 
-        #region Serializing
+        /// <summary>
+        /// Clears(deep copies) all the elements if a list and returns them as a cleared list. Paramters depend on the IDeepCopyable type you want to get.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="_list"></param>
+        /// <returns>Returns null if T does not inherit from IDeepCopyable interface.</returns>
+        public static List<T> DeepCopyList<T>(List<T> _list, object[] _parameters)
+        {
+            //If T doesnt iherit from IDeepCopyable
+            if (!typeof(T).GetTypeInfo().IsAssignableFrom(typeof(IDeepCopyable<T>).Ge‌​tTypeInfo()))
+                return null;
+
+            List<T> result = new List<T>();
+            foreach (IDeepCopyable<T> item in _list)
+            {
+                T cleared = item.DeepCopy(_parameters);
+                result.Add(cleared);
+            }
+
+            return result;
+        }
+
         public static string Serialize<T>(T _object)
         {
             if (_object == null) return null;
@@ -109,6 +141,31 @@ namespace CarCRUD.Tools
             try { result = JsonConvert.DeserializeObject<T>(_data); } catch { }
 
             return result;
+        }
+
+        public static async Task<bool> CreateFullFavouritesAsync(List<FavouriteCar> _favourites, GeneralResponseData _responseData)
+        {
+            if (_favourites == null || _responseData == null)
+                return false;
+
+            bool result = await Task.Run(() => CreateFullFavourites(_favourites, _responseData));
+
+            return result;
+        }
+
+        private static async Task<bool> CreateFullFavourites(List<FavouriteCar> _favourites, GeneralResponseData _responseData)
+        {
+            if (_favourites == null || _responseData == null)
+                return false;
+
+            foreach(FavouriteCar current in _favourites)
+            {
+                CarType type = _responseData.carTypes.First(t => t.ID == current.cartype);
+                type.brandData = _responseData.carBrands.First(b => b.ID == type.brand);
+                current.carTypeData = type;
+            }
+
+            return true;
         }
         #endregion
 
@@ -182,16 +239,48 @@ namespace CarCRUD.Tools
             if (_user == null) return null;
 
             UserData result = new UserData();
-            result.username = Base64(_user.username, _encode);
-            result.password = Base64(_user.password, _encode);
+            result.username = _encode ? HashData(_user.username) : _user.username;
+            result.password = _encode ? HashData(_user.password) : _user.password;
             result.fullname = Encrypt(_user.fullname, _encode);
             result.active = _user.active;
             result.passwordAttempts = _user.passwordAttempts;
             result.ID = _user.ID;
-            result.accountDeleteRequested = _user.accountDeleteRequested;
             result.type = _user.type;
 
             return result;
+        }
+        #endregion
+
+        #region Input Handling
+        public static string GetInput(string _message = null, string _condition = null, int _tries = 1)
+        {
+            string result = null;
+            int tries = _tries;
+            while (true)
+            {
+                //If out of tries
+                if (tries <= 0) return result;
+
+                //Display message before every input
+                if (_message != null)
+                    Console.WriteLine(_message);
+
+                //Decrease tries
+                tries--;
+
+                //Get Input
+                result = Console.ReadLine();
+
+                //If result is empty
+                if (string.IsNullOrWhiteSpace(result) || string.IsNullOrEmpty(result))
+                    continue;
+
+                //If result needs to match something
+                if (_condition != null && result != _condition)
+                    continue;
+
+                return result;
+            }
         }
         #endregion
     }

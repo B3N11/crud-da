@@ -8,12 +8,21 @@ using CarCRUD.Networking;
 using CarCRUD.Tools;
 using CarCRUD.ServerHandle;
 using System.Text;
-using System.Reflection;
 
 namespace CarCRUD.User
 {
+    /// <summary>
+    /// UserController is a link between network communication and server internal logic.
+    /// 
+    /// Main tasks: Handle client connections (connect, drop, authenticate)
+    ///             Handle communication (send, receive)
+    ///             Handle messages/requests from remote connections
+    /// </summary>
     class UserController
     {
+        /// <summary>
+        /// List of online clients (not just logged in users).
+        /// </summary>
         public static List<User> users = new List<User>();
 
         #region Client Handle
@@ -98,6 +107,8 @@ namespace CarCRUD.User
             {
                 if (_user.status == UserStatus.Authenticated) return true;
                 if (_user.status == UserStatus.Dropped) return false;
+
+                await Task.Delay(10);
             }
 
             return false;
@@ -115,6 +126,11 @@ namespace CarCRUD.User
             try { users.Remove(_user); } catch { }      //Release instance for GC
         }
 
+        /// <summary>
+        /// Checks if user is logged in.
+        /// </summary>
+        /// <param name="_username"></param>
+        /// <returns></returns>
         public static bool IsUserLoggedIn(string _username)
         {
             bool result = false;
@@ -187,28 +203,28 @@ namespace CarCRUD.User
                 case NetMessageType.KeyAuthenticationRequest:      //Key Auth Message
                     UserActionHandler.CheckAuthenticationKey(_message as KeyAuthenticationRequestMessage, _user); break;
 
-                case NetMessageType.LoginRequest:       //Login Reques Message
+                case NetMessageType.LoginRequest:       //Login Request Message
                     UserActionHandler.LoginRequestHandleAsync(_message as LoginRequestMessage, _user); break;
 
-                case NetMessageType.RegistrationRequest:
+                case NetMessageType.RegistrationRequest:        //Registration request
                     UserActionHandler.RegistrationHandle(_message as RegistrationRequestMessage, _user); break;
 
-                case NetMessageType.Logout:
+                case NetMessageType.Logout:     //Logout request
                     UserActionHandler.LogoutHandle(_user); break;
 
-                case NetMessageType.UserRequest:
+                case NetMessageType.UserRequest:    //Some kind of request from user (Account delete/new car brand)
                     UserActionHandler.UserRequestHandle(_message as UserRequestMesssage, _user); break;
 
-                case NetMessageType.AdminRegistrationRequest:
+                case NetMessageType.AdminRegistrationRequest:       //Admin wants to create a new user
                     UserActionHandler.AdminRegistrationHandle(_message as AdminRegistrationRequestMessage, _user); break;
 
-                case NetMessageType.BrandCreate:
+                case NetMessageType.BrandCreate:        //Admin wants to create a new car brand
                     UserActionHandler.BrandCreateHandleAsync(_message as BrandCreateMessage, _user); break;
 
-                case NetMessageType.FavouriteCarCreateRequest:
+                case NetMessageType.FavouriteCarCreateRequest:      //User wants to create new Favourite Car
                     UserActionHandler.FavouriteCarCreateHandleAsync(_message as FavouriteCarCreateRequestMessage, _user); break;
 
-                case NetMessageType.UserDeleteRequest:
+                case NetMessageType.UserDeleteRequest:      //Admin wants to delete a user
                     UserActionHandler.UserDeleteHandleAsync(_message as UserDeleteRequestMessage, _user); break;
             }
         }

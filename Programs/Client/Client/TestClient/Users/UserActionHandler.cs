@@ -1,9 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CarCRUD.DataModels;
-using CarCRUD.Tools;
+﻿using CarCRUD.DataModels;
 
 namespace CarCRUD.Users
 {
@@ -13,6 +8,7 @@ namespace CarCRUD.Users
         public static bool RequestLogin(string _username, string _password)
         {
             //Check call validity
+            if (!UserController.CheckClientConnection()) return false;
             if (string.IsNullOrEmpty(_username) || string.IsNullOrEmpty(_password)) return false;
 
             LoginRequestMessage message = new LoginRequestMessage();
@@ -34,11 +30,12 @@ namespace CarCRUD.Users
         /// <returns></returns>
         public static bool RequestRegistration(string _username, string _passwordFirst, string _passwordSecond, string _fullname)
         {
+            if (!UserController.CheckClientConnection()) return false;
             if (string.IsNullOrEmpty(_username) || string.IsNullOrEmpty(_passwordFirst) || string.IsNullOrEmpty(_passwordSecond) || string.IsNullOrEmpty(_fullname))
                 return false;
 
             RegistrationRequestMessage message = new RegistrationRequestMessage();
-            message.type = NetMessageType.ReqistrationRequest;
+            message.type = NetMessageType.RegistrationRequest;
             message.username = _username;
             message.passwordFirst = _passwordFirst;
             message.passwordSecond = _passwordSecond;
@@ -48,32 +45,45 @@ namespace CarCRUD.Users
             return true;
         }
 
+        public static bool RequestAdminRegistration(string _username, string _passwordFirst, string _passwordSecond, string _fullname)
+        {
+            if (!UserController.CheckClientConnection()) return false;
+            if (string.IsNullOrEmpty(_username) || string.IsNullOrEmpty(_passwordFirst) || string.IsNullOrEmpty(_passwordSecond) || string.IsNullOrEmpty(_fullname))
+                return false;
+
+            AdminRegistrationRequestMessage message = new AdminRegistrationRequestMessage();
+            message.username = _username;
+            message.passwordFirst = _passwordFirst;
+            message.passwordSecond = _passwordSecond;
+            message.fullname = _fullname;
+            message.userType = UserType.Admin;
+
+            UserController.Send(message);
+            return true;
+        }
+
         /// <summary>
         /// Sends logout indicator message
         /// </summary>
-        public static void Logout()
+        public static void RequestLogout()
         {
-            NetMessage message = new NetMessage();
-            message.type = NetMessageType.Logout;
+            if (!UserController.CheckClientConnection()) return;
+            LogoutMessage message = new LogoutMessage();
 
-            UserController.Send(message);
+            UserController.Send(message, false);
         }
         #endregion
 
         #region Requests
         public static void AccountDeleteRequest()
         {
-            UserController.Send(new AccountDeleteRequestMessage());
-        }
+            if (!UserController.CheckClientConnection()) return;
 
-        public static void CarBrandRequest(string _brand)
-        {
-            if (string.IsNullOrEmpty(_brand)) return;
+            UserRequestMesssage request = new UserRequestMesssage();
+            request.requestType = UserRequestType.AccountDelete;
 
-            CarBrandAddRequestMessage message = new CarBrandAddRequestMessage();
-            message.brandName = _brand;
-
-            UserController.Send(message);
+            //Send
+            UserController.Send(request);
         }
         #endregion
     }

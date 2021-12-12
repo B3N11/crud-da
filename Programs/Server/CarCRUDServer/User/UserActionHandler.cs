@@ -88,7 +88,8 @@ namespace CarCRUD.User
             response.user = sendUser;
 
             //Get favourites
-            List<FavouriteCar> favourites = await DBController.GetFavouritesAsync(_user.userData.ID);
+            response.favourites = await DBController.GetFavouritesAsync(_user.userData.ID, false);
+
             //Decrypt all
             response.favourites.ForEach(c => c = GeneralManager.EncryptFavouriteCar(c, false));
 
@@ -105,12 +106,22 @@ namespace CarCRUD.User
             GeneralResponseData result = new GeneralResponseData();
 
             //Get data
-            List<CarBrand> brands = await DBController.GetCarBrandsAsync();
-            List<CarType> types = await DBController.GetCarTypesAsync("*");            
+            List<CarBrand> carBrands = await DBController.GetCarBrandsAsync();
+            List<CarType> carTypes = await DBController.GetCarTypesAsync("*", false);
 
             //Decrypt all data
-            result.carBrands.ForEach(b => b = GeneralManager.EncryptCarBrand(b, false));
-            result.carTypes.ForEach(t => t = GeneralManager.EncryptCarType(t, false));
+            result.carBrands = new List<CarBrand>();
+            result.carTypes = new List<CarType>();
+            carBrands.ForEach(b =>
+            {
+                CarBrand decrypted = GeneralManager.EncryptCarBrand(b, false);
+                result.carBrands.Add(decrypted);
+            });
+            carTypes.ForEach(t =>
+            {
+                CarType type = GeneralManager.EncryptCarType(t, false);
+                result.carTypes.Add(type);
+            });
 
             return result;
         }
@@ -120,12 +131,22 @@ namespace CarCRUD.User
             AdminResponseData result = new AdminResponseData();
 
             //Get data
-            result.users = await DBController.GetAllUserAsync();
-            result.requests = await DBController.GetRequestsAsync("*");
+            List<UserData> users = await DBController.GetAllUserAsync();
+            List<UserRequest> requests = await DBController.GetRequestsAsync("*");
 
             //Decode all data
-            result.users.ForEach(u => u = GeneralManager.EncryptUser(u, false));
-            result.requests.ForEach(r => r = GeneralManager.EncryptRequest(r, false));
+            result.users = new List<UserData>();
+            result.requests = new List<UserRequest>();
+            users.ForEach(u =>
+            {
+                UserData decrypted = GeneralManager.EncryptUser(u, false);
+                result.users.Add(decrypted);
+            });
+            requests.ForEach(r =>
+            {
+                UserRequest decrypted = GeneralManager.EncryptRequest(r, false);
+                result.requests.Add(decrypted);
+            });
 
             return result;
         }
@@ -353,11 +374,6 @@ namespace CarCRUD.User
             if (_message == null || _user == null || _user.userData?.type != UserType.Admin) return;
 
             string hashedBrand = GeneralManager.Encrypt(_message.name, true);
-            List<CarBrand> brands = await DBController.GetCarBrandsAsync();
-
-            //If already exists
-            if (brands != null && brands.Any(b => b.name == hashedBrand))
-                return;
 
             bool result = await DBController.CreateBrandAsync(hashedBrand);
 
@@ -368,6 +384,11 @@ namespace CarCRUD.User
             UserController.Send(response, _user);
         }
 
+        /// <summary>
+        /// Creates a new FavouriteCar for a user;
+        /// </summary>
+        /// <param name="_message"></param>
+        /// <param name="_user"></param>
         public static async void FavouriteCarCreateHandleAsync(FavouriteCarCreateRequestMessage _message, User _user)
         {
             if (_message == null || _user == null) return;
@@ -384,6 +405,11 @@ namespace CarCRUD.User
 
             //Get type of car
             string hashedType = GeneralManager.Encrypt(_message.carType, true);
+
+            //Check brand existance
+            CarBrand brand = await DBController.GetCarBrandAsync(_message.brandID);
+            if (brand == null) return false;
+
             CarType type;
             List<CarType> types = await DBController.GetCarTypesAsync(_message.brandID);
 

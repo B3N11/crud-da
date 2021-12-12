@@ -105,7 +105,7 @@ namespace CarCRUD.Tools
         }
 
         /// <summary>
-        /// Clears(deep copies) all the elements if a list and returns them as a cleared list. Paramters depend on the IDeepCopyable type you want to get.
+        /// Clears(deep copies) all the elements of a list and returns them as a cleared list. Parameters depend on the IDeepCopyable type you want to get.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="_list"></param>
@@ -159,7 +159,7 @@ namespace CarCRUD.Tools
         {
             if (string.IsNullOrEmpty(_data)) return null;
 
-            return CeasarEncrypt.Encrypt(_data, _encrypt, encryptionKey);
+            return CeasarEncrypter.Encrypt(_data, _encrypt, encryptionKey);
         }
 
         /// <summary>
@@ -249,6 +249,8 @@ namespace CarCRUD.Tools
             result.color = Encrypt(_car.color, _encrypt);
             result.fuel = Encrypt(_car.fuel, _encrypt);
             result.year = _car.year;
+            result.user = _car.userData.ID;
+            result.cartype = _car.carTypeData.ID;
             if (_recursive)
             {
                 result.userData = EncryptUser(_car.userData, _encrypt);
@@ -273,6 +275,7 @@ namespace CarCRUD.Tools
             CarType result = new CarType();
             result.ID = _car.ID;
             result.name = Encrypt(_car.name, _encrypt);
+            result.brand = _car.brandData.ID;
             if (_recursive)
                 result.brandData = EncryptCarBrand(_car.brandData, _encrypt);
             else result.brandData = null;
@@ -304,6 +307,7 @@ namespace CarCRUD.Tools
             UserRequest result = new UserRequest();
             result.ID = _request.ID;
             result.type = _request.type;
+            result.user = _request.userData.ID;
             result.brandAttach = Encrypt(_request.brandAttach, _encrypt);
             if (_recursive) result.userData = EncryptUser(_request.userData, _encrypt);
 

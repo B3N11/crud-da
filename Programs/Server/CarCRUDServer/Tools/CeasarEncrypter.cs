@@ -6,14 +6,14 @@ namespace CarCRUD.Tools
     /// <summary>
     /// Encrypts a string with bitpush and base64.
     /// </summary>
-    class CeasarEncrypt
+    class CeasarEncrypter
     {
         /// <summary>
         /// Data needs to be provided in base64 form to decrypt it and the key must match with the key the data has been encrypted with.
         /// </summary>
         /// <param name="data">The data to be ecrypted/decrypted.</param>
         /// <param name="encrypt">True to encrypt, false to decrypt.</param>
-        /// <param name="key">The key used to encrypt/decrypt.</param>
+        /// <param name="key">The key used to encrypt/decrypt. Its clamped between 0 to 8, as that's the limit of a bitpush. (0 and 8 doesn't modify the original value, they DONT encrypt!)</param>
         public static string Encrypt(string data, bool encrypt, int key)
         {
             if (string.IsNullOrEmpty(data)) return null;
@@ -41,7 +41,7 @@ namespace CarCRUD.Tools
         }
 
         /// <summary>
-        /// Does bitpush on a byte.
+        /// "Pushes" the bits of a byte, creating a new bit that differs from the original.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="encrypt"></param>
