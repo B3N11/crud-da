@@ -8,8 +8,6 @@ namespace CarCRUD.ViewModels
     {
         #region Properties
         protected MainViewModel main;
-        protected ProfileViewModel profile;
-        protected CarsViewModel cars;
 
         public string FullName
         {
@@ -62,14 +60,12 @@ namespace CarCRUD.ViewModels
         #region Button Events
         public virtual void OpenCars()
         {
-            if (cars == null) cars = new CarsViewModel(main, this);
-            SetControl(cars, false);
+            SetControl(new CarsViewModel(this), true);
         }
 
         public virtual void OpenProfile()
         {
-            if (profile == null) profile = new ProfileViewModel(main);
-            SetControl(profile, false);
+            SetControl(new ProfileViewModel(main), true);
         }
         #endregion
     }

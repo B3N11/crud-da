@@ -13,7 +13,13 @@
     <Compile Update="Views\AdminactionView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\CareditView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\CarsView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\DataView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="Views\DisconnectedView.xaml.cs">
@@ -32,6 +38,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="Views\RegistrationView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\RequestsView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="Views\UsereditView.xaml.cs">
@@ -60,7 +69,13 @@
     <Page Update="Views\AdminactionView.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Update="Views\CareditView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Views\CarsView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\DataView.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\DisconnectedView.xaml">
@@ -79,6 +94,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\RegistrationView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\RequestsView.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\UsereditView.xaml">

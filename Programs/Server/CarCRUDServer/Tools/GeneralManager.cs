@@ -96,7 +96,16 @@ namespace CarCRUD.Tools
                         return Deserialize<UserRequestMesssage>(_object);
 
                     case NetMessageType.BrandCreate:
-                        return Deserialize<BrandCreateMessage>(_object);
+                        return Deserialize<BrandCreateRequestMessage>(_object);
+
+                    case NetMessageType.FavouriteCarCreateRequest:
+                        return Deserialize<FavouriteCarCreateRequestMessage>(_object);
+
+                    case NetMessageType.RequestAnswerRequest:
+                        return Deserialize<RequestAnswerRequestMessage>(_object);
+
+                    case NetMessageType.UserActivityResetRequest:
+                        return Deserialize<UserActivityResetRequestMessage>(_object);
                 }
 
                 return result;

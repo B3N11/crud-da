@@ -1,4 +1,5 @@
 ﻿using CarCRUD.DataModels;
+using System.Windows;
 
 namespace CarCRUD.Users
 {
@@ -83,6 +84,58 @@ namespace CarCRUD.Users
             request.requestType = UserRequestType.AccountDelete;
 
             //Send
+            UserController.Send(request);
+        }
+        #endregion
+
+        #region Admin
+        public static void BrancCreateRequest(string _brandName)
+        {
+            if (!UserController.CheckClientConnection()) return;
+            if (string.IsNullOrEmpty(_brandName))
+                return;
+
+            BrandCreateRequestMessage message = new BrandCreateRequestMessage();
+            message.name = _brandName;
+
+            UserController.Send(message);
+        }
+
+        public static bool FavouriteCarCreateRequest(int _brandID, CarType _type, string _typeName, int _year, string _color, string _fuel)
+        {
+            if ((_type == null && string.IsNullOrEmpty(_typeName)) || string.IsNullOrEmpty(_color) || string.IsNullOrEmpty(_fuel))
+                return false;
+
+            FavouriteCarCreateRequestMessage request = new FavouriteCarCreateRequestMessage();
+            request.brandID = _brandID;
+
+            //Written type overwrites picked type
+            if (_typeName == null)
+                request.carType = _type.name;
+            else request.carType = _typeName;
+
+            request.year = _year;
+            request.color = _color;
+            request.fuel = _fuel;
+
+            UserController.Send(request);
+            return true;
+        }
+
+        public static void RequestAnswerRequest(bool _accept, int _ID)
+        {
+            RequestAnswerRequestMessage request = new RequestAnswerRequestMessage();
+            request.accept = _accept;
+            request.requestID = _ID;
+
+            UserController.Send(request);
+        }
+
+        public static void UserActivityResetRequest(int _userID)
+        {
+            UserActivityResetRequestMessage request = new UserActivityResetRequestMessage();
+            request.userID = _userID;
+
             UserController.Send(request);
         }
         #endregion

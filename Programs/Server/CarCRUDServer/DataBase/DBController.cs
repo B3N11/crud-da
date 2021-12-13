@@ -206,12 +206,13 @@ namespace CarCRUD.DataBase
         /// </summary>
         /// <param name="_encryptedBrandName"></param>
         /// <returns></returns>
-        public static async Task<bool> CreateBrandAsync(string _encryptedBrandName)
+        public static async Task<CarBrand> CreateBrandAsync(string _encryptedBrandName)
         {
-            if (string.IsNullOrEmpty(_encryptedBrandName) || !initialized) return false;
+            if (string.IsNullOrEmpty(_encryptedBrandName) || !initialized)
+                return null;
 
             bool exists = database.CarBrands.Any(b => b.name == _encryptedBrandName);
-            if (exists) return false;
+            if (exists) return null;
 
             CarBrand newBrand = new CarBrand();
             newBrand.name = _encryptedBrandName;
@@ -219,8 +220,8 @@ namespace CarCRUD.DataBase
             database.CarBrands.Add(newBrand);
 
             try { await database.SaveChangesAsync(); }
-            catch { return false; }
-            return true;
+            catch { return null; }
+            return newBrand;
         }
         #endregion
 
@@ -409,7 +410,7 @@ namespace CarCRUD.DataBase
         /// <returns></returns>
         public static async Task<List<UserRequest>> GetRequestsAsync(string _hashedUsername, bool _withoutAdditionalData = true)
         {
-            if (string.IsNullOrEmpty(_hashedUsername)) return null;
+            if (string.IsNullOrEmpty(_hashedUsername) || !initialized) return null;
 
             List<UserRequest> result = await Task.Run(() => GetRequests(_hashedUsername, _withoutAdditionalData));
 
@@ -436,6 +437,67 @@ namespace CarCRUD.DataBase
             return result;
         }
 
+        public static async Task<UserRequest> GetRequestAsync(int _requestID, bool _withoutAdditionalData = true)
+        {
+            if (!initialized) return null;
+
+            UserRequest result = await Task.Run(() => GetRequest(_requestID, _withoutAdditionalData));
+
+            return result;
+        }
+
+        private static UserRequest GetRequest(int _requestID, bool _withoutAdditionalData = true)
+        {
+            if (!initialized) return null;
+
+            UserRequest result = null;
+
+            if (_withoutAdditionalData)
+                try { result = database.UserRequests.First(r => r.ID == _requestID); } catch { }
+            else try { result = database.UserRequests.Include(r => r.userData).First(r => r.ID == _requestID); } catch { }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Deletes request from database
+        /// </summary>
+        /// <param name="_requestID"></param>
+        /// <returns></returns>
+        public static async Task<bool> DeleteRequest(int _requestID)
+        {
+            if (!initialized)
+                return false;
+
+            UserRequest request = null;
+            try { request = GetRequest(_requestID); } catch { }
+            if (request == null) return false;
+
+            database.UserRequests.Remove(request);
+
+            try { await database.SaveChangesAsync(); }
+            catch { return false; }
+            return true;
+        }
+
+        /// <summary>
+        /// Deletes request from database
+        /// </summary>
+        /// <param name="_requestID"></param>
+        /// <returns></returns>
+        public static async Task<bool> DeleteRequest(UserRequest _request)
+        {
+            if (_request == null || !initialized)
+                return false;
+
+            try { database.UserRequests.Remove(_request); }
+            catch { return false; }
+
+            try { await database.SaveChangesAsync(); }
+            catch { return false; }
+            return true;
+        }
+
         /// <summary>
         /// Creates brand attach request for user.
         /// </summary>
@@ -444,7 +506,7 @@ namespace CarCRUD.DataBase
         /// <returns></returns>
         public static async Task<bool> CreateBrandAttachRequestAsync(string _brand, string _username)
         {
-            if (string.IsNullOrEmpty(_brand) || string.IsNullOrEmpty(_username))
+            if (string.IsNullOrEmpty(_brand) || string.IsNullOrEmpty(_username) || !initialized)
                 return false;
 
             UserRequest request = new UserRequest();
@@ -468,7 +530,7 @@ namespace CarCRUD.DataBase
         /// <returns></returns>
         public static async Task<bool> CreateAccountDeleteRequestAsync(string _username)
         {
-            if (string.IsNullOrEmpty(_username))
+            if (string.IsNullOrEmpty(_username) || !initialized)
                 return false;
 
             UserRequest request = new UserRequest();
@@ -503,7 +565,7 @@ namespace CarCRUD.DataBase
 
         private static async Task<bool> CreateUser(UserData _user)
         {
-            if (_user == null) return false;
+            if (_user == null || !initialized) return false;
 
             try { database.Users.Add(_user); }
             catch { return false; }
@@ -521,7 +583,7 @@ namespace CarCRUD.DataBase
         /// <returns></returns>
         public static async Task<bool> SetUserDataAsync(UserData _userData, int _ID)
         {
-            if (_userData == null) return false;
+            if (_userData == null || !initialized) return false;
 
             UserData user = await GetUserAsync(_ID);
             if (user == null) return false;
@@ -541,7 +603,7 @@ namespace CarCRUD.DataBase
         /// <returns></returns>
         public static async Task<bool> DeleteUser(string _username)
         {
-            if (string.IsNullOrEmpty(_username)) return false;
+            if (string.IsNullOrEmpty(_username) || !initialized) return false;
 
             UserData user = await GetUserAsync(_username);
             if (user == null) return false;

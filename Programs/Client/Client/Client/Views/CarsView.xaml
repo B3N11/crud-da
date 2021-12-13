@@ -18,7 +18,7 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center">
 
-            <TextBlock Text="USERS"
+            <TextBlock Text="MY CARS"
                        Style="{StaticResource TitleTheme}"
                        FontSize="30"/>
         </Border>
@@ -54,12 +54,11 @@
                           SelectedItem="{Binding Path=SelectedCar, Mode=OneWayToSource}">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn DisplayMemberBinding="{Binding ID}" Header="Car ID" Width="100"/>
-                            <GridViewColumn DisplayMemberBinding="{Binding fullname}" Header="Brand" Width="200"/>
-                            <GridViewColumn DisplayMemberBinding="{Binding type}" Header="Type" Width="200"/>
-                            <GridViewColumn DisplayMemberBinding="{Binding active}" Header="Color" Width="150"/>
-                            <GridViewColumn DisplayMemberBinding="{Binding active}" Header="Year" Width="100"/>
-                            <GridViewColumn DisplayMemberBinding="{Binding active}" Header="Fuel" Width="90"/>
+                            <GridViewColumn DisplayMemberBinding="{Binding carTypeData.brandData.name}" Header="Brand" Width="200"/>
+                            <GridViewColumn DisplayMemberBinding="{Binding carTypeData.name}" Header="Type" Width="200"/>
+                            <GridViewColumn DisplayMemberBinding="{Binding color}" Header="Color" Width="150"/>
+                            <GridViewColumn DisplayMemberBinding="{Binding year}" Header="Year" Width="100"/>
+                            <GridViewColumn DisplayMemberBinding="{Binding fuel}" Header="Fuel" Width="90"/>
                         </GridView>
                     </ListView.View>
                 </ListView>

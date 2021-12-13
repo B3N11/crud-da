@@ -1,9 +1,6 @@
 ﻿using Caliburn.Micro;
 using CarCRUD.DataModels;
 using CarCRUD.Users;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows;
 
 namespace CarCRUD.ViewModels
@@ -11,9 +8,7 @@ namespace CarCRUD.ViewModels
     class UsereditViewModel : Screen
     {
         #region Properties
-        private MainViewModel main;
-        private UsersViewModel users;
-        private ActionViewModel action;
+        private AdminactionViewModel action;
 
         private UserData user;
 
@@ -25,10 +20,8 @@ namespace CarCRUD.ViewModels
         private string fullname = string.Empty;
         private UserType userType;
 
-        public UsereditViewModel(MainViewModel _main, UsersViewModel _users, ActionViewModel _action, UserData _user = null)
+        public UsereditViewModel(AdminactionViewModel _action, UserData _user = null)
         {
-            main = _main;
-            users = _users;
             action = _action;
             user = _user;
             //Sub to event
@@ -110,7 +103,7 @@ namespace CarCRUD.ViewModels
         public void ResponseHandle(LoginAttemptResult _message, int loginTryLeft = 0)
         {
             if (_message == LoginAttemptResult.Success)
-                action.SetControl(users, true);
+                MessageBox.Show("User successfully created!");
 
             else LoginResultDisplay(_message);
         }
@@ -155,7 +148,7 @@ namespace CarCRUD.ViewModels
 
         public void Cancel()
         {
-            action.SetControl(users, true);
+            action.SetControl(new UsersViewModel(action), true);
         }
         #endregion
     }

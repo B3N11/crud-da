@@ -93,7 +93,7 @@ namespace CarCRUD.Users
         public static void MessageReceivedHandle(object _sender, string _message)
         {
             //Check call validity
-            if (_sender == null || string.IsNullOrEmpty(_message)) return;
+            if (_sender == null || string.IsNullOrEmpty(_message) || !CheckClientConnection()) return;
 
             //Check user validity
             User _user = null;
@@ -144,22 +144,25 @@ namespace CarCRUD.Users
             user.canRequest = true;
         }
 
-        public static async void SetUserData(UserData _data, GeneralResponseData _responseData, List<FavouriteCar> _favourites, AdminResponseData _adminResponseData = null)
+        public static void SetUserData(UserData _data, GeneralResponseData _responseData, AdminResponseData _adminResponseData = null)
         {
             user.userData = _data;
-            user.userResponseData = _responseData;
+            user.generalResponseData = _responseData;
             user.adminResponseData = _adminResponseData;
 
-            //Fill favourites
-            await GeneralManager.CreateFullFavouritesAsync(_favourites, _responseData);
-            user.favourites = _favourites;
+            //Set users to requests
+            if (user.adminResponseData == null) return;
+            user.adminResponseData.requests.ForEach(r => 
+            {
+                r.userData = user.adminResponseData.users.First(u => u.ID == r.user);
+            });
         }
 
         public static void Logout(bool breakConnection = false)
         {
             if (!CheckClientConnection()) return;
 
-            SetUserData(null, null, null, null);
+            SetUserData(null, null, null);
             UserActionHandler.RequestLogout();
 
             //Recreates user if disconnectint from server was requested
@@ -180,10 +183,26 @@ namespace CarCRUD.Users
 
             switch (_message.type)
             {
-                case NetMessageType.LoginResponse:       //Login Reques Message
+                case NetMessageType.LoginResponse:       //Login response Message
                     ResponseHandler.LoginResponseHandle(_message as LoginResponseMessage); break;
-                case NetMessageType.AdminRegistrationResponse:
+
+                case NetMessageType.AdminRegistrationResponse:      //Admin registration response
                     ResponseHandler.LoginResponseHandle(_message as AdminRegistrationResponseMessage); break;
+
+                case NetMessageType.BrandCreateResponse:        //Admin brand create response
+                    ResponseHandler.BrandCreationResponseHandle(_message as BrandCreateResponseMessage); break;
+
+                case NetMessageType.FavouriteCarCreateResponse:     //User favourite car create response
+                    ResponseHandler.FavouriteCarCreationResponseHandle(_message as FavouriteCarCreateResponseMessage); break;
+
+                case NetMessageType.RequestAnswerResponse:
+                    ResponseHandler.RequestAnswerResponseHandle(_message as RequestAnswerResponseMessage); break;
+
+                case NetMessageType.UserRequestResponse:
+                    ResponseHandler.UserRequestResponseHandle(_message as UserRequestResponseMessage); break;
+
+                case NetMessageType.UserActivityResetResponse:
+                    ResponseHandler.UserActivityResetResponseHandle(_message as UserActivityResetResponseMessage); break;
             }
 
             //Enable new request

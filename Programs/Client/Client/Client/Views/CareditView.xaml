@@ -1,0 +1,132 @@
+﻿<UserControl x:Class="CarCRUD.Views.CareditView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:CarCRUD.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="500" d:DesignWidth="860">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100"/>
+            <RowDefinition Height="300"/>
+            <RowDefinition Height="100"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title -->
+        <Border Grid.Row="0">
+            <TextBlock Text="CREATE CAR" FontSize="50" Margin="0,5,0,0" Style="{StaticResource TitleTheme}"/>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Brand -->
+            <Border Grid.Row="0"
+                    Grid.Column="0">
+                <TextBlock Text="Car Brand:" FontSize="20" Margin="0,20,200,0" Style="{StaticResource SubtitleTheme}"/>
+            </Border>
+            <Border Grid.Row="1"
+                    Grid.Column="0"
+                    Height="30"
+                    Width="300">
+                <ComboBox ItemsSource="{Binding CarBrands, Mode=TwoWay}"
+                          DisplayMemberPath="name"
+                          SelectedItem="{Binding SelectedBrand, Mode=OneWayToSource}"/>
+            </Border>
+
+            <!-- Type -->
+            <Border Grid.Row="2"
+                    Grid.Column="0">
+                <TextBlock Text="Car Type:" FontSize="20" Margin="0,20,200,0" Style="{StaticResource SubtitleTheme}"/>
+            </Border>
+            <Grid   Grid.Row="3"
+                    Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <ComboBox ItemsSource="{Binding CarTypes, Mode=TwoWay}"
+                          DisplayMemberPath="name"
+                          SelectedItem="{Binding Type, Mode=OneWayToSource}"
+                          Height="30"
+                          Width="300"/>
+                
+                <TextBox x:Name="CarTypeName"
+                         Grid.Row="1"
+                         Height="30"
+                         Width="300"/>
+            </Grid>
+
+            <!-- Color -->
+            <Border Grid.Row="0" Grid.Column="1">
+                <TextBlock Text="Color:" FontSize="20" Margin="0,20,250,0" Style="{StaticResource SubtitleTheme}"/>
+            </Border>
+            <Border Grid.Row="1"
+                    Grid.Column="1"
+                    Height="30"
+                    Width="300">
+                <TextBox x:Name="Color"/>
+            </Border>
+
+            <!-- Year -->
+            <Border Grid.Row="2" Grid.Column="1">
+                <TextBlock Text="Year (number only)" FontSize="20" Margin="0,20,120,0" Style="{StaticResource SubtitleTheme}"/>
+            </Border>
+            <Grid Grid.Row="3"
+                  Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <TextBox x:Name="Year"
+                         Grid.Row="0"
+                         Height="30"
+                         Width="300"/>
+                
+                <Border Grid.Row="1" Grid.Column="1">
+                    <TextBlock Text="Fuel" FontSize="20" Margin="0,20,270,0" Style="{StaticResource SubtitleTheme}"/>
+                </Border>
+
+                <TextBox x:Name="Fuel"
+                         Grid.Row="2"
+                         Height="30"
+                         Width="300"/>
+            </Grid>           
+        </Grid>
+
+        <!-- Buttons -->
+        <Grid Grid.Row="4">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center">
+                <Button x:Name="Create"
+                        Content="CREATE"
+                        FontSize="30"
+                        Width="150"
+                        Height="70"
+                        Margin="0,0,10,0"
+                        Style="{StaticResource LoginButtonTheme}"/>
+                <Button x:Name="Cancel"
+                        Content="Cancel"
+                        FontSize="30"
+                        Width="150"
+                        Height="70"
+                        Margin="10,0,0,0"
+                        Style="{StaticResource LoginButtonInverseTheme}"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

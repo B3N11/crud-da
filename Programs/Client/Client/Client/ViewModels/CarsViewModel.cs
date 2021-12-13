@@ -8,7 +8,6 @@ namespace CarCRUD.ViewModels
     class CarsViewModel : Screen
     {
         #region Properties
-        private MainViewModel main;
         private ActionViewModel action;
         private FavouriteCar selectedCar;
 
@@ -28,24 +27,23 @@ namespace CarCRUD.ViewModels
         {
             get
             {
-                return UserController.user.favourites;
+                return UserController.user.generalResponseData.favourites;
             }
             set
             {
-                NotifyOfPropertyChange(() => UserController.user.favourites);
+                NotifyOfPropertyChange(() => UserController.user.generalResponseData.favourites);
             }
         }
         #endregion
-        public CarsViewModel(MainViewModel _main, ActionViewModel _action)
+        public CarsViewModel(ActionViewModel _action)
         {
-            main = _main;
             action = _action;
         }
 
         #region Button Events
         public void NewCar()
         {
-
+            action.SetControl(new CareditViewModel(action), true);
         }
         #endregion
     }

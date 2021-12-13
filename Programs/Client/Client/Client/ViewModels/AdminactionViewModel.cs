@@ -1,11 +1,8 @@
-﻿using Caliburn.Micro;
-
-namespace CarCRUD.ViewModels
+﻿namespace CarCRUD.ViewModels
 {
     class AdminactionViewModel : ActionViewModel
     {
         #region Properties
-        private UsersViewModel users;
 
         public AdminactionViewModel(MainViewModel _main) : base(_main)
         {
@@ -15,8 +12,17 @@ namespace CarCRUD.ViewModels
         #region Button Events
         public void OpenUsers()
         {
-            if (users == null) users = new UsersViewModel(main, this);
-            SetControl(users, false);
+            SetControl(new UsersViewModel(this), true);
+        }
+
+        public void OpenData()
+        {
+            SetControl(new DataViewModel(), true);
+        }
+
+        public void OpenRequests()
+        {
+            SetControl(new RequestsViewModel(), true);
         }
         #endregion
     }

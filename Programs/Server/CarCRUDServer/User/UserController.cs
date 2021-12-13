@@ -46,7 +46,7 @@ namespace CarCRUD.User
 
             users.Add(newUser);
 
-            if(Server.loggingEnabled) Logger.LogConnectionState(newUser);
+            if(ServerSettings.LoggingEnabled) Logger.LogConnectionState(newUser);
 
             //Start the authentication of the client
             ClientAuthenticationAsync(newUser);
@@ -65,7 +65,7 @@ namespace CarCRUD.User
             //Drop user
             DropUser(user);
             user.status = UserStatus.Disconnected;
-            if (Server.loggingEnabled) Logger.LogConnectionState(user);
+            if (ServerSettings.LoggingEnabled) Logger.LogConnectionState(user);
         }
 
         #region Authentication
@@ -78,11 +78,11 @@ namespace CarCRUD.User
         {
             //Update user status
             _user.status = UserStatus.PendingAuthentication;
-            if (Server.loggingEnabled) Logger.LogState(_user);
+            if (ServerSettings.LoggingEnabled) Logger.LogState(_user);
 
             //Create CTS for the tasks and start coundown
             CancellationTokenSource cts = new CancellationTokenSource();
-            GeneralManager.CountdownAsync(Server.clientAuthTimeOut, 10, cts);
+            GeneralManager.CountdownAsync(ServerSettings.ClientAuthTimeOut, 10, cts);
 
             //Start auth checking
             bool result = await Task.Run(() => CheckClientAuthentication(cts.Token, _user));
@@ -97,7 +97,7 @@ namespace CarCRUD.User
             //Drop user uppon auth fail
             DropUser(_user);
 
-            if (Server.loggingEnabled) Logger.LogState(_user);
+            if (ServerSettings.LoggingEnabled) Logger.LogState(_user);
         }
 
         private static async Task<bool> CheckClientAuthentication(CancellationToken token, User _user)
@@ -163,7 +163,7 @@ namespace CarCRUD.User
             //Get Message object and its type
             NetMessage message = GeneralManager.GetMessage(decryptedMessage);
 
-            if (Server.loggingEnabled) Logger.LogMessage(user, message);
+            if (ServerSettings.LoggingEnabled) Logger.LogMessage(user, message);
 
             //Let message be handled based on its type
             HandleMessage(message, user);
@@ -178,7 +178,7 @@ namespace CarCRUD.User
             string message = GeneralManager.Serialize(_object);
             message = GeneralManager.Encrypt(message, true);
 
-            if (Server.loggingEnabled) Logger.LogResponse(_user, _object as NetMessage);
+            if (ServerSettings.LoggingEnabled) Logger.LogResponse(_user, _object as NetMessage);
 
             //Send
             byte[] data = Encoding.UTF8.GetBytes(message);
@@ -213,19 +213,22 @@ namespace CarCRUD.User
                     UserActionHandler.LogoutHandle(_user); break;
 
                 case NetMessageType.UserRequest:    //Some kind of request from user (Account delete/new car brand)
-                    UserActionHandler.UserRequestHandle(_message as UserRequestMesssage, _user); break;
+                    UserActionHandler.UserRequestHandleAsync(_message as UserRequestMesssage, _user); break;
 
                 case NetMessageType.AdminRegistrationRequest:       //Admin wants to create a new user
                     UserActionHandler.AdminRegistrationHandle(_message as AdminRegistrationRequestMessage, _user); break;
 
                 case NetMessageType.BrandCreate:        //Admin wants to create a new car brand
-                    UserActionHandler.BrandCreateHandleAsync(_message as BrandCreateMessage, _user); break;
+                    UserActionHandler.BrandCreateHandleAsync(_message as BrandCreateRequestMessage, _user); break;
 
                 case NetMessageType.FavouriteCarCreateRequest:      //User wants to create new Favourite Car
                     UserActionHandler.FavouriteCarCreateHandleAsync(_message as FavouriteCarCreateRequestMessage, _user); break;
 
-                case NetMessageType.UserDeleteRequest:      //Admin wants to delete a user
-                    UserActionHandler.UserDeleteHandleAsync(_message as UserDeleteRequestMessage, _user); break;
+                case NetMessageType.RequestAnswerRequest:
+                    UserActionHandler.RequestAnswerRequestHandleAsync(_message as RequestAnswerRequestMessage, _user); break;
+
+                case NetMessageType.UserActivityResetRequest:
+                    UserActionHandler.UserActivityResetHandleAsync(_message as UserActivityResetRequestMessage, _user); break;
             }
         }
         #endregion

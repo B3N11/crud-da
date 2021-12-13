@@ -17,10 +17,8 @@ namespace CarCRUD.Users
 
         //Data
         public UserData userData;
-        public GeneralResponseData userResponseData;
+        public GeneralResponseData generalResponseData;
         public AdminResponseData adminResponseData;
-        public List<FavouriteCar> favourites;
-        public List<UserRequest> requests;
 
         public bool canRequest = true;      //Enables/disables UI
 

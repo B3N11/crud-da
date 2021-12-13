@@ -36,8 +36,10 @@
         BrandCreateResponse,
         FavouriteCarCreateRequest,
         FavouriteCarCreateResponse,
-        UserDeleteRequest,
-        UserDeleteResponse
+        RequestAnswerRequest,
+        RequestAnswerResponse,
+        UserActivityResetRequest,
+        UserActivityResetResponse
     }
 
     public enum LoginAttemptResult

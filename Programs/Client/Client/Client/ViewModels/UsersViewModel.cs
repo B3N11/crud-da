@@ -9,7 +9,6 @@ namespace CarCRUD.ViewModels
     class UsersViewModel : Screen
     {
         #region Properties
-        private MainViewModel main;
         private AdminactionViewModel action;
         private UserData selectedUser;
 
@@ -38,9 +37,8 @@ namespace CarCRUD.ViewModels
             }
         }
 
-        public UsersViewModel(MainViewModel _main, AdminactionViewModel _action)
+        public UsersViewModel(AdminactionViewModel _action)
         {
-            main = _main;
             action = _action;
         }
         #endregion
@@ -48,20 +46,14 @@ namespace CarCRUD.ViewModels
         #region Button Events
         public void NewUser()
         {
-            action.SetControl(new UsereditViewModel(main, this, action), false);
+            action.SetControl(new UsereditViewModel(action), false);
         }
         public void ActivateUser()
         {
-            if (selectedUser == null)
+            if (SelectedUser == null)
                 return;
 
-            if (selectedUser.active)
-            {
-                MessageBox.Show($"User already active.");
-                return;
-            }
-
-
+            UserActionHandler.UserActivityResetRequest(SelectedUser.ID);
         }
         #endregion
     }

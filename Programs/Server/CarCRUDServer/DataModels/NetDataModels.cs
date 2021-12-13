@@ -32,7 +32,6 @@ namespace CarCRUD.DataModels
         public LoginAttemptResult result { get; set; }
         public int loginTryLeft { get; set; }
         public UserData user { get; set; }
-        public List<FavouriteCar> favourites { get; set; }
         public GeneralResponseData userResponseData { get; set; }
         public AdminResponseData adminResponseData { get; set; }
 
@@ -44,7 +43,9 @@ namespace CarCRUD.DataModels
     public class GeneralResponseData
     {
         public List<CarBrand> carBrands { get; set; }
-        public List<CarType> carTypes { get; set; }        
+        public List<CarType> carTypes { get; set; }
+
+        public List<FavouriteCar> favourites { get; set; }
     }
 
     public class AdminResponseData
@@ -76,6 +77,9 @@ namespace CarCRUD.DataModels
     #endregion
 
     #region Data Messaging
+    /// <summary>
+    /// User can send a request (account delete or new brand creation request)
+    /// </summary>
     public class UserRequestMesssage : NetMessage
     {
         public UserRequestType requestType { get; set; }
@@ -86,15 +90,26 @@ namespace CarCRUD.DataModels
 
     public class UserRequestResponseMessage : SimpleMessage { public UserRequestResponseMessage() => type = NetMessageType.UserRequestResponse; }
 
-    public class BrandCreateMessage : NetMessage
+    /// <summary>
+    /// New brand creation (ADMIN)
+    /// </summary>
+    public class BrandCreateRequestMessage : NetMessage
     {
         public string name { get; set; }
 
-        public BrandCreateMessage() => type = NetMessageType.BrandCreate;
+        public BrandCreateRequestMessage() => type = NetMessageType.BrandCreate;
     }
 
-    public class BrandCreateResponseMessage : SimpleMessage { public BrandCreateResponseMessage() => type = NetMessageType.BrandCreateResponse; }
+    public class BrandCreateResponseMessage : NetMessage
+    {
+        public bool result { get; set; }
+        public CarBrand carBrand { get; set; }
+        public BrandCreateResponseMessage() => type = NetMessageType.BrandCreateResponse;
+    }
 
+    /// <summary>
+    /// New car creation (USER)
+    /// </summary>
     public class FavouriteCarCreateRequestMessage : NetMessage
     {
         public int brandID { get; set; }
@@ -106,15 +121,46 @@ namespace CarCRUD.DataModels
         public FavouriteCarCreateRequestMessage() => type = NetMessageType.FavouriteCarCreateRequest;
     }
 
-    public class FavouriteCarCreateResponseMessage : SimpleMessage { public FavouriteCarCreateResponseMessage() => type = NetMessageType.FavouriteCarCreateResponse; }
-
-    public class UserDeleteRequestMessage : NetMessage
+    public class FavouriteCarCreateResponseMessage : NetMessage
     {
-        public string username { get; set; }
+        public bool result { get; set; }
+        public FavouriteCar favouriteCar { get; set; }
 
-        public UserDeleteRequestMessage() => type = NetMessageType.UserDeleteRequest;
+        public FavouriteCarCreateResponseMessage() => type = NetMessageType.FavouriteCarCreateResponse;
     }
 
-    public class UserDeleteResponseMessage : SimpleMessage { public UserDeleteResponseMessage() => type = NetMessageType.UserDeleteResponse; }
+    /// <summary>
+    /// Answering a request of a user (ADMIN)
+    /// </summary>
+    public class RequestAnswerRequestMessage : NetMessage
+    {
+        /// <summary>
+        /// If true, request is acepted. If false, request is dismissed.
+        /// </summary>
+        public bool accept { get; set; }
+        public int requestID { get; set; }
+
+        public RequestAnswerRequestMessage() => type = NetMessageType.RequestAnswerRequest;
+    }
+
+    public class RequestAnswerResponseMessage : NetMessage
+    {
+        public bool result { get; set; }
+        public int requestID { get; set; }
+        public RequestAnswerResponseMessage() => type = NetMessageType.RequestAnswerResponse;
+    }
+
+    public class UserActivityResetRequestMessage : NetMessage
+    {
+        public int userID { get; set; }
+        public UserActivityResetRequestMessage() => type = NetMessageType.UserActivityResetRequest;
+    }
+
+    public class UserActivityResetResponseMessage : NetMessage
+    {
+        public bool result { get; set; }
+        public int userID { get; set; }
+        public UserActivityResetResponseMessage() => type = NetMessageType.UserActivityResetResponse;
+    }
     #endregion
 }
