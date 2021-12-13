@@ -229,6 +229,9 @@ namespace CarCRUD.User
 
                 case NetMessageType.UserActivityResetRequest:
                     UserActionHandler.UserActivityResetHandleAsync(_message as UserActivityResetRequestMessage, _user); break;
+
+                case NetMessageType.CarDeleteRequest:
+                    UserActionHandler.CarDeleteRequestHandleAsync(_message as CarDeleteRequestMessage, _user); break;
             }
         }
         #endregion

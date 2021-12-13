@@ -162,5 +162,18 @@ namespace CarCRUD.DataModels
         public int userID { get; set; }
         public UserActivityResetResponseMessage() => type = NetMessageType.UserActivityResetResponse;
     }
+
+    public class CarDeleteRequestMessage : NetMessage
+    {
+        public int carID { get; set; }
+        public CarDeleteRequestMessage() => type = NetMessageType.CarDeleteRequest;
+    }
+
+    public class CarDeleteResponseMessage : NetMessage
+    {
+        public bool result { get; set; }
+        public int carID { get; set; }
+        public CarDeleteResponseMessage() => type = NetMessageType.CarDeleteResponse;
+    }
     #endregion
 }

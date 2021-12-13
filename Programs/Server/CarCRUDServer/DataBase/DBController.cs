@@ -397,6 +397,35 @@ namespace CarCRUD.DataBase
             catch { return false; }
             return true;
         }
+
+        public static FavouriteCar GetFavouriteCar(int _carID)
+        {
+            FavouriteCar result = null;
+            try { result = database.FavouriteCars.First(c => c.ID == _carID); }
+            catch { }
+
+            return result;
+        }
+
+        public static async Task<bool> DeleteFavouriteCarAsync(FavouriteCar _favouriteCar)
+        {
+            if (_favouriteCar == null || !initialized) return false;
+
+            bool result = await Task.Run(() => DeleteFavouriteCar(_favouriteCar));
+            return result;
+        }
+
+        private static async Task<bool> DeleteFavouriteCar(FavouriteCar _favouriteCar)
+        {
+            if (_favouriteCar == null || !initialized) return false;
+
+            try { database.FavouriteCars.Remove(_favouriteCar); }
+            catch { return false; }
+
+            try { await database.SaveChangesAsync(); }
+            catch { return false; }
+            return true;
+        }
         #endregion
 
         #endregion

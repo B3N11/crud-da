@@ -203,6 +203,9 @@ namespace CarCRUD.Users
 
                 case NetMessageType.UserActivityResetResponse:
                     ResponseHandler.UserActivityResetResponseHandle(_message as UserActivityResetResponseMessage); break;
+
+                case NetMessageType.CarDeleteResponse:
+                    ResponseHandler.CarDeleteResponseHandle(_message as CarDeleteResponseMessage); break;
             }
 
             //Enable new request

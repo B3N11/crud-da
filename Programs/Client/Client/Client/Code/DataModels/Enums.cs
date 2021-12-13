@@ -39,7 +39,9 @@
         RequestAnswerRequest,
         RequestAnswerResponse,
         UserActivityResetRequest,
-        UserActivityResetResponse
+        UserActivityResetResponse,
+        CarDeleteRequest,
+        CarDeleteResponse
     }
 
     public enum LoginAttemptResult

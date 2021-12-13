@@ -338,7 +338,6 @@ namespace CarCRUD.User
         }
         #endregion
 
-
         #region Modify User
         /// <summary>
         /// Creates new user
@@ -510,6 +509,31 @@ namespace CarCRUD.User
 
             bool result = await DBController.CreateFavouriteCarAsync(car);
             return GeneralManager.EncryptFavouriteCar(car, false, true);
+        }
+
+        public static async void CarDeleteRequestHandleAsync(CarDeleteRequestMessage _message, User _user)
+        {
+            if (_message == null || _user == null)
+                return;
+
+            CarDeleteResponseMessage response = new CarDeleteResponseMessage();
+            response.result = await Task.Run(() => CarDeleteRequestHandle(_message));
+            response.carID = _message.carID;
+
+            UserController.Send(response, _user);
+        }
+
+        private static async Task<bool> CarDeleteRequestHandle(CarDeleteRequestMessage _message)
+        {
+            if (_message == null)
+                return false;
+
+            FavouriteCar car = null;
+            try { car = DBController.GetFavouriteCar(_message.carID); } catch { }
+            if (car == null) return false;
+
+            bool result = await DBController.DeleteFavouriteCarAsync(car);
+            return result;
         }
         #endregion
     }

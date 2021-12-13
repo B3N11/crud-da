@@ -138,6 +138,14 @@ namespace CarCRUD.Users
 
             UserController.Send(request);
         }
+
+        public static void CarDeleteRequest(int _carID)
+        {
+            CarDeleteRequestMessage request = new CarDeleteRequestMessage();
+            request.carID = _carID;
+
+            UserController.Send(request);
+        }
         #endregion
     }
 }

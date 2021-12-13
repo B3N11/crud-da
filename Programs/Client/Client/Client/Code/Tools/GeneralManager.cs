@@ -111,6 +111,9 @@ namespace CarCRUD.Tools
 
                 case NetMessageType.UserActivityResetResponse:
                     return Deserialize<UserActivityResetResponseMessage>(_object);
+
+                case NetMessageType.CarDeleteResponse:
+                    return Deserialize<CarDeleteResponseMessage>(_object);
             }
 
             return result;

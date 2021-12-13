@@ -45,6 +45,14 @@ namespace CarCRUD.ViewModels
         {
             action.SetControl(new CareditViewModel(action), true);
         }
+
+        public void DeleteCar()
+        {
+            if (SelectedCar == null)
+                return;
+
+            UserActionHandler.CarDeleteRequest(SelectedCar.ID);
+        }
         #endregion
     }
 }

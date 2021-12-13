@@ -106,6 +106,9 @@ namespace CarCRUD.Tools
 
                     case NetMessageType.UserActivityResetRequest:
                         return Deserialize<UserActivityResetRequestMessage>(_object);
+
+                    case NetMessageType.CarDeleteRequest:
+                        return Deserialize<CarDeleteRequestMessage>(_object);
                 }
 
                 return result;

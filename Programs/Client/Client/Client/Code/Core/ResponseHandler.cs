@@ -92,6 +92,18 @@ namespace CarCRUD
             string result = _message.result ? "Activity reset successful!" : "Activity reset failed!";
             MessageBox.Show(result);
         }
+
+        public static void CarDeleteResponseHandle(CarDeleteResponseMessage _message)
+        {
+            if (_message == null) return;
+
+            if(_message.result)
+                try { UserController.user.generalResponseData.favourites.RemoveAll(c => c.ID == _message.carID); }
+                catch { }
+
+            string result = _message.result ? "Delete successful!" : "Delete failed!";
+            MessageBox.Show(result);
+        }
         #endregion
     }
 }
