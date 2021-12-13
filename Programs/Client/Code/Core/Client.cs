@@ -8,10 +8,10 @@ namespace CarCRUD
     {
         //Network
         public static string ip = "127.0.0.1";
-        public static string key = "4bC_1z3";
+        public static int port = 1989;
 
         //Authentication
-        public static int port = 1989;
+        public static string key = "4bC_1z3";
 
         //ViewModels
         public static IConnectionHandler mainVM;
